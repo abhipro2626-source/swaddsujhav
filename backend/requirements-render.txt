@@ -1,0 +1,10 @@
+# Lean production requirements (fits Render's free 512 MB instance).
+# Same MiniLM embedding model as local dev, run through ONNX (fastembed) instead of torch.
+fastapi>=0.115
+uvicorn[standard]>=0.30
+httpx>=0.27
+python-dotenv>=1.0
+numpy>=2.0
+scipy>=1.13
+scikit-learn>=1.5
+fastembed>=0.4

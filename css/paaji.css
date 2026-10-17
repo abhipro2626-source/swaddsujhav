@@ -1,0 +1,156 @@
+/* =====================================================================
+   Paaji — mascot, animation states and the speech bubble
+   ===================================================================== */
+.paaji-root {
+  position: fixed; left: 8px; bottom: calc(64px + env(safe-area-inset-bottom)); z-index: var(--z-paaji);
+  pointer-events: none;
+}
+@media (min-width: 768px) { .paaji-root { left: 18px; bottom: 14px; } }
+.paaji { position: relative; display: flex; align-items: flex-end; gap: 4px; }
+.paaji > * { pointer-events: auto; }
+
+.paaji__figure {
+  width: 86px; padding: 0; border: 0; background: none; cursor: pointer;
+  transform-origin: bottom center; transition: width var(--dur) var(--ease), transform var(--dur);
+  filter: drop-shadow(0 6px 14px rgba(107,15,26,.25));
+  --look-x: 0px; --look-y: 0px;
+}
+.paaji__figure:focus-visible { outline: 3px solid var(--rani-pink); border-radius: 50%; }
+.paaji-root.is-big .paaji__figure { width: 132px; }
+@media (min-width: 768px) { .paaji__figure { width: 128px; } .paaji-root.is-big .paaji__figure { width: 128px; } }
+.paaji-svg { width: 100%; height: auto; overflow: visible; display: block; }
+.paaji__mute { width: 38px; height: 38px; margin-bottom: 6px; background: var(--bg-raised); box-shadow: var(--shadow-sm); }
+.paaji__mute svg { width: 18px; height: 18px; }
+.paaji__mute.is-muted { color: var(--fg-muted); }
+
+/* Part pivots (SVG user space) */
+.paaji-svg .pj-body, .paaji-svg .pj-head, .paaji-svg .pj-arm, .paaji-svg .pj-mouth,
+.paaji-svg .pj-eyes, .paaji-svg .pj-brows, .paaji-svg .pj-kalgi, .paaji-svg .pj-thali { transform-box: view-box; }
+.paaji-svg .pj-body { transform-origin: 110px 280px; }
+.paaji-svg .pj-head { transform-origin: 110px 140px; }
+.paaji-svg .pj-arm--r { transform-origin: 150px 172px; }
+.paaji-svg .pj-arm--l { transform-origin: 70px 172px; }
+.paaji-svg .pj-mouth { transform-origin: 110px 121px; }
+.paaji-svg .pj-eyes { transform-origin: 110px 90px; }
+.paaji-svg .pj-brows { transform-origin: 110px 79px; }
+.paaji-svg .pj-kalgi { transform-origin: 110px 46px; }
+.paaji-svg .pj-pupil { transform: translate(var(--look-x), var(--look-y)); transition: transform 300ms var(--ease); }
+.paaji-svg .pj-sparkles { opacity: 0; transform-box: view-box; transform-origin: 110px 120px; }
+.paaji-svg .pj-arm, .paaji-svg .pj-head, .paaji-svg .pj-body { transition: transform 380ms var(--ease); }
+
+/* idle: breathing + gentle sway; kalgi bobs */
+.paaji__figure.is-idle .pj-body { animation: pj-sway 4.5s ease-in-out infinite; }
+.paaji__figure .pj-kalgi { animation: pj-kalgi 3s ease-in-out infinite; }
+@keyframes pj-sway { 0%, 100% { transform: rotate(-1.2deg) scale(1, 1); } 50% { transform: rotate(1.2deg) scale(1.01, .995); } }
+@keyframes pj-kalgi { 50% { transform: rotate(6deg); } }
+
+/* blink */
+.paaji__figure.is-blinking .pj-eyes { transform: scaleY(.1); transition: transform 80ms; }
+
+/* talk: mouth opens and closes while speech is playing */
+.paaji__figure.is-talking .pj-mouth { animation: pj-talk 220ms ease-in-out infinite alternate; }
+.paaji__figure.is-talking .pj-brows { animation: pj-brows 900ms ease-in-out infinite alternate; }
+@keyframes pj-talk { from { transform: scale(1, .5); } to { transform: scale(1.06, 1.6); } }
+@keyframes pj-brows { to { transform: translateY(-2px); } }
+
+/* wave */
+.paaji__figure.is-wave .pj-arm--r { animation: pj-wave 520ms ease-in-out infinite alternate; }
+.paaji__figure.is-wave .pj-head { transform: rotate(-4deg); }
+@keyframes pj-wave { from { transform: rotate(-150deg); } to { transform: rotate(-115deg); } }
+
+/* point: arm out toward the screen / suggested sweet */
+.paaji__figure.is-point .pj-arm--r { transform: rotate(-112deg); animation: pj-point 900ms ease-in-out infinite alternate; }
+.paaji__figure.is-point .pj-head { transform: rotate(5deg); }
+@keyframes pj-point { to { transform: rotate(-104deg); } }
+
+/* think: hand on chin, eyes up */
+.paaji__figure.is-think .pj-arm--r { transform: rotate(132deg); }
+.paaji__figure.is-think .pj-head { transform: rotate(-6deg); }
+.paaji__figure.is-think { --look-x: 1.5px; --look-y: -2.5px; }
+.paaji__figure.is-think .pj-brows { transform: translateY(-3px); }
+
+/* celebrate: both arms up (thali raised), little hop, sparkles */
+.paaji__figure.is-celebrate .pj-arm--r { transform: rotate(-160deg); }
+.paaji__figure.is-celebrate .pj-arm--l { transform: rotate(150deg); }
+.paaji__figure.is-celebrate .pj-body { animation: pj-hop 520ms ease-in-out infinite alternate; }
+.paaji__figure.is-celebrate .pj-sparkles, .paaji__figure.is-dance .pj-sparkles { animation: pj-spark 900ms ease-in-out infinite; }
+@keyframes pj-hop { to { transform: translateY(-8px); } }
+@keyframes pj-spark { 0% { opacity: 0; transform: scale(.7) rotate(0); } 50% { opacity: 1; } 100% { opacity: 0; transform: scale(1.15) rotate(20deg); } }
+
+/* dance: bhangra shoulders — arms alternate up, body bounces */
+.paaji__figure.is-dance .pj-body { animation: pj-bhangra-body 360ms ease-in-out infinite alternate; }
+.paaji__figure.is-dance .pj-arm--r { animation: pj-bhangra-r 360ms ease-in-out infinite alternate; }
+.paaji__figure.is-dance .pj-arm--l { animation: pj-bhangra-l 360ms ease-in-out infinite alternate; }
+.paaji__figure.is-dance .pj-head { animation: pj-bhangra-head 360ms ease-in-out infinite alternate; }
+@keyframes pj-bhangra-body { from { transform: translateY(0) rotate(-3deg); } to { transform: translateY(-7px) rotate(3deg); } }
+@keyframes pj-bhangra-r { from { transform: rotate(-165deg); } to { transform: rotate(-120deg); } }
+@keyframes pj-bhangra-l { from { transform: rotate(110deg); } to { transform: rotate(160deg); } }
+@keyframes pj-bhangra-head { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .paaji__figure .pj-body, .paaji__figure .pj-kalgi, .paaji__figure .pj-arm, .paaji__figure .pj-head,
+  .paaji__figure .pj-sparkles, .paaji__figure .pj-brows { animation: none !important; }
+  .paaji__figure.is-talking .pj-mouth { animation: pj-talk 400ms ease-in-out infinite alternate !important; }
+}
+
+/* ---------- Speech bubble ---------- */
+.bubble {
+  position: absolute; left: 6px; bottom: calc(100% + 6px); width: min(calc(100vw - 28px), 330px);
+  padding: 14px 16px 12px; border-radius: 22px 22px 22px 6px;
+  background: var(--bg-raised); color: var(--fg); border: 2px solid var(--gold);
+  box-shadow: var(--shadow-glow), var(--shadow-md);
+  transform-origin: bottom left;
+}
+.bubble::before {
+  content: ""; position: absolute; inset: 5px; border-radius: 17px 17px 17px 4px; pointer-events: none;
+  border: 1px dashed color-mix(in srgb, var(--rani-pink) 45%, transparent);
+}
+.bubble::after {
+  content: ""; position: absolute; left: 26px; bottom: -11px; width: 18px; height: 18px;
+  background: var(--bg-raised); border-right: 2px solid var(--gold); border-bottom: 2px solid var(--gold);
+  transform: rotate(45deg) skew(8deg, 8deg); border-bottom-right-radius: 4px;
+}
+@media (min-width: 768px) { .bubble { left: 60px; bottom: calc(100% - 26px); } }
+.bubble.is-in { animation: bubble-in 380ms var(--ease-bounce); }
+@keyframes bubble-in { from { opacity: 0; transform: scale(.7) translateY(10px); } }
+.bubble__x { position: absolute; top: 4px; right: 6px; width: 32px; height: 32px; border: 0; background: none; color: var(--fg-muted); font-size: 20px; line-height: 1; cursor: pointer; border-radius: 50%; }
+.bubble__x:hover { background: var(--bg-sunken); }
+.bubble__text { margin: 0 22px 0 0; font-weight: 600; line-height: 1.45; min-height: 1.45em; }
+.bubble--shayari .bubble__text { font-family: var(--font-deva); font-weight: 400; font-size: 1.12rem; white-space: pre-line; color: var(--deep-maroon); }
+:root[data-theme="night"] .bubble--shayari .bubble__text { color: var(--gold); }
+.bubble__extra:empty { display: none; }
+.bubble__extra { margin-top: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.bubble__roman { margin: 0; font-size: var(--fs-sm); font-style: italic; white-space: pre-line; width: 100%; }
+.bubble__en { margin: 0; font-size: var(--fs-xs); width: 100%; }
+.bubble__pick { display: inline-flex; align-items: center; gap: 8px; flex: 1; min-width: 0; text-decoration: none; font-weight: 700; }
+.bubble__pick img { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex: none; }
+.bubble__pick span { overflow: hidden; text-overflow: ellipsis; }
+
+/* Card Paaji is pointing at */
+.sweet-card.is-paaji-pick { animation: paaji-pick 1.1s ease-in-out 4; box-shadow: 0 0 0 3px var(--marigold), var(--shadow-glow); }
+@keyframes paaji-pick { 50% { box-shadow: 0 0 0 6px rgba(255,184,0,.35), 0 10px 40px rgba(255,184,0,.6); transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .sweet-card.is-paaji-pick { animation: none; } }
+
+/* Keep Paaji out of the way of modals/drawers on small screens */
+body.has-modal .paaji-root, body.has-drawer .paaji-root { z-index: calc(var(--z-modal) + 1); }
+@media (max-width: 767px) { body.has-drawer .paaji-root { display: none; } }
+
+/* Phones: Paaji tucks half off-screen while you scroll, and slides out when he talks. */
+@media (max-width: 767px) {
+  .paaji-root { transition: transform 320ms var(--ease), opacity 320ms; }
+  .paaji__figure { width: 72px; }
+  .paaji-root.is-tucked:not(.has-bubble):not(.is-big) { transform: translateX(-52%); opacity: .85; }
+  .paaji-root.is-tucked:not(.has-bubble):not(.is-big) .paaji__mute { opacity: 0; pointer-events: none; }
+}
+
+/* ---------- Ask Paaji dialog ---------- */
+.ask-modal .modal__panel { border: 2px solid var(--gold); box-shadow: var(--shadow-glow), var(--shadow-md); }
+.ask { display: grid; gap: var(--sp-3); }
+.ask h2 { margin: 0; font-size: var(--fs-xl); }
+.ask p { margin: 0; }
+.ask__input { display: grid; grid-template-columns: 1fr auto; gap: var(--sp-2); align-items: center; }
+.ask__input input { font-size: var(--fs-lg); min-height: 52px; }
+.ask__mic { width: 52px; height: 52px; color: var(--accent); }
+.ask__mic svg { width: 24px; height: 24px; }
+.ask__mic.is-listening { background: var(--rani-pink); color: #fff; animation: pulse 1s infinite; }
+.ask .chips .chip { cursor: pointer; }

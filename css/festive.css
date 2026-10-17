@@ -1,0 +1,87 @@
+/* =====================================================================
+   Festive: entry screen, diya, glow
+   (rangoli, toran, sparkles and fireworks arrive in phase 10)
+   ===================================================================== */
+
+.entry {
+  position: fixed; inset: 0; z-index: var(--z-modal);
+  display: grid; place-items: center;
+  padding: var(--gutter);
+  background: radial-gradient(ellipse at 50% 40%, #FFF3C4 0%, var(--cream) 45%, #FCE3A6 100%);
+  text-align: center; overflow: hidden;
+  transition: opacity var(--dur-slow) var(--ease), visibility var(--dur-slow);
+}
+:root[data-theme="night"] .entry {
+  background: radial-gradient(ellipse at 50% 40%, #5A1530 0%, #2C0B1E 50%, #12030B 100%);
+}
+.entry.is-leaving { opacity: 0; visibility: hidden; }
+
+/* Curtain / door opening transition after "Andar Aao" */
+.entry__curtain {
+  position: absolute; top: 0; bottom: 0; width: 50.5%; z-index: 0;
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.08) 0 18px, transparent 18px 46px),
+    linear-gradient(180deg, #8E1430 0%, var(--deep-maroon) 100%);
+  transition: transform 900ms var(--ease);
+  opacity: 0;
+}
+.entry__curtain::after { content: ""; position: absolute; top: 0; bottom: 0; width: 14px; background: var(--gold-grad); }
+.entry__curtain--l { left: 0; }
+.entry__curtain--l::after { right: 0; }
+.entry__curtain--r { right: 0; }
+.entry__curtain--r::after { left: 0; }
+.entry.is-lit .entry__curtain { opacity: 1; transition: opacity 250ms, transform 900ms var(--ease); }
+.entry.is-opening { background: transparent; pointer-events: none; }
+.entry.is-opening .entry__inner, .entry.is-opening .entry__glow { opacity: 0; transform: scale(1.08); transition: opacity 400ms, transform 600ms var(--ease); }
+.entry.is-opening .entry__curtain--l { transform: translateX(-102%); }
+.entry.is-opening .entry__curtain--r { transform: translateX(102%); }
+.entry__inner { z-index: 1; }
+.entry__place { margin: 0; font-size: var(--fs-sm); color: var(--fg-muted); letter-spacing: .08em; text-transform: uppercase; }
+@media (prefers-reduced-motion: reduce) { .entry__curtain { display: none; } }
+
+/* Diyas that light up across the bottom when an order is placed */
+.diya-row {
+  position: fixed; left: 0; right: 0; bottom: calc(70px + env(safe-area-inset-bottom)); z-index: var(--z-fx);
+  display: flex; justify-content: space-around; pointer-events: none; transition: opacity 600ms, transform 600ms;
+}
+.diya-row.is-out { opacity: 0; transform: translateY(20px); }
+.mini-diya { position: relative; width: 44px; height: 22px; border-radius: 0 0 22px 22px; background: linear-gradient(#E07B2E, #8A3B12); box-shadow: inset 0 3px 0 #F5C542; animation: diya-pop 500ms var(--ease-bounce) both; }
+.mini-diya i { position: absolute; left: 50%; bottom: 18px; width: 12px; height: 20px; margin-left: -6px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: radial-gradient(circle at 50% 70%, #FFF6C8, #FFB800 50%, #FF6B1A); box-shadow: 0 0 18px 6px rgba(255,184,0,.6); animation: flame-flicker 900ms ease-in-out infinite alternate; transform-origin: bottom center; }
+@keyframes diya-pop { from { opacity: 0; transform: translateY(30px) scale(.6); } }
+
+/* Effects canvas (sparkles, fireworks) */
+.fx-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: var(--z-fx); }
+
+.entry__glow {
+  position: absolute; width: 70vmin; height: 70vmin; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 184, 0, 0.45), transparent 65%);
+  animation: glow-breathe 4s var(--ease) infinite alternate;
+}
+@keyframes glow-breathe { from { transform: scale(0.9); opacity: 0.7; } to { transform: scale(1.08); opacity: 1; } }
+
+.entry__inner { position: relative; display: grid; justify-items: center; gap: var(--sp-3); }
+.entry__logo { font-size: var(--fs-hero); margin: 0; filter: drop-shadow(0 2px 0 rgba(107, 15, 26, 0.25)); }
+.entry__tagline { font-family: var(--font-hand); font-size: var(--fs-lg); color: var(--deep-maroon); margin: 0; }
+:root[data-theme="night"] .entry__tagline { color: var(--fg-muted); }
+.entry__cta { margin-top: var(--sp-4); }
+.entry__status { margin-top: var(--sp-2); }
+
+/* Diya */
+.diya { width: clamp(110px, 22vw, 170px); height: auto; overflow: visible; }
+.diya__flame {
+  transform-origin: 60px 44px;
+  animation: flame-flicker 1.6s ease-in-out infinite alternate;
+}
+@keyframes flame-flicker {
+  0%   { transform: scale(1, 1) rotate(-1deg); }
+  40%  { transform: scale(0.96, 1.05) rotate(1.5deg); }
+  100% { transform: scale(1.03, 0.97) rotate(-0.5deg); }
+}
+.entry.is-lit .diya__flame {
+  animation: flame-burst 0.6s var(--ease-bounce) forwards, flame-flicker 1.2s 0.6s ease-in-out infinite alternate;
+}
+@keyframes flame-burst { 50% { transform: scale(1.5, 1.7); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .entry__glow, .diya__flame, .foil { animation: none !important; }
+}

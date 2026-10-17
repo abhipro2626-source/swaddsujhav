@@ -1,0 +1,29 @@
+# Render Blueprint — one web service runs the whole shop:
+# the website, the ML recommendation API, Ask Paaji and Paaji's ElevenLabs voice.
+services:
+  - type: web
+    name: swaad-sujhav
+    runtime: python
+    plan: free
+    region: singapore            # closest Render region to Muzaffarnagar
+    buildCommand: pip install -r backend/requirements-render.txt
+    startCommand: cd backend && uvicorn app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: SUPABASE_URL
+        value: https://jqcrswigpamwmzjxlowu.supabase.co
+      - key: SUPABASE_ANON_KEY          # public anon key (same as js/config.js)
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxY3Jzd2lncGFtd216anhsb3d1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyMjUyMDksImV4cCI6MjEwNzgwMTIwOX0.OVaNEvHt9UZ6sXBiSElo6tnPsryRbwu12eatxp3SJcY
+      - key: ML_TOKEN                   # secret: paste the value from backend/.env in the Render dashboard
+        sync: false
+      - key: ELEVENLABS_API_KEY         # secret: paste in the Render dashboard (optional)
+        sync: false
+      - key: ELEVENLABS_VOICE_ID
+        value: JBFqnCBsd6RMkjVDRZzb     # George
+      - key: ELEVENLABS_MODEL
+        value: eleven_multilingual_v2
+      - key: RETRAIN_EVERY_MINUTES
+        value: "60"

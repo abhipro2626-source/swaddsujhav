@@ -1,0 +1,20 @@
+# Secrets — never commit
+backend/.env
+.env
+*.env.local
+
+# Python
+backend/.venv/
+.venv/
+__pycache__/
+*.pyc
+backend/.cache/
+
+# Generated / local-only
+deploy/
+seed/.image_cache.json
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/

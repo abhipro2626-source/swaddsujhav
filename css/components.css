@@ -1,0 +1,86 @@
+/* =====================================================================
+   Components: buttons, chips, toasts, status
+   (cards, cart drawer and modals arrive in phases 4–5)
+   ===================================================================== */
+
+/* Buttons — press-scale and glow on every button */
+.btn {
+  --btn-bg: var(--bg-raised);
+  --btn-fg: var(--fg);
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2);
+  min-height: var(--tap); padding: 0 var(--sp-5);
+  border: 1px solid var(--line); border-radius: var(--radius-pill);
+  background: var(--btn-bg); color: var(--btn-fg);
+  font-weight: 600; letter-spacing: 0.01em; text-decoration: none;
+  transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur) var(--ease),
+              filter var(--dur) var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:hover { box-shadow: var(--shadow-glow); }
+.btn:active { transform: scale(0.96); }
+.btn[disabled] { opacity: 0.55; pointer-events: none; }
+
+.btn--gold {
+  --btn-bg: var(--gold-grad);
+  --btn-fg: var(--on-gold);
+  border-color: transparent;
+  box-shadow: 0 4px 16px rgba(255, 153, 51, 0.35);
+}
+.btn--festive { --btn-bg: var(--festive-grad); --btn-fg: var(--white); border-color: transparent; }
+.btn--lg { min-height: 56px; padding: 0 var(--sp-6); font-size: var(--fs-lg); }
+
+.icon-btn {
+  display: inline-grid; place-items: center;
+  width: var(--tap); height: var(--tap);
+  border: 1px solid var(--line); border-radius: 50%;
+  background: var(--bg-raised); color: var(--fg);
+  transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.icon-btn:hover { box-shadow: var(--shadow-glow); }
+.icon-btn:active { transform: scale(0.92); }
+.icon-btn svg { width: 22px; height: 22px; }
+
+/* Chips */
+.chip {
+  display: inline-flex; align-items: center; gap: var(--sp-1);
+  min-height: 32px; padding: 0 var(--sp-3);
+  border-radius: var(--radius-pill); border: 1px solid var(--line);
+  background: var(--bg-raised); font-size: var(--fs-sm); font-weight: 500;
+}
+.chip--gold { background: var(--gold); color: var(--on-gold); border-color: transparent; }
+.chip--pink { background: var(--rani-pink); color: var(--white); border-color: transparent; }
+.chip--pista { background: var(--pista); color: var(--text); border-color: transparent; }
+
+/* Toasts */
+.toast-stack {
+  position: fixed; z-index: var(--z-toast);
+  left: 50%; bottom: calc(var(--sp-5) + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: grid; gap: var(--sp-2); width: min(92vw, 420px);
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius); border: 1px solid var(--line);
+  background: var(--bg-raised); color: var(--fg); box-shadow: var(--shadow-md);
+  font-size: var(--fs-sm);
+  animation: toast-in var(--dur) var(--ease-bounce);
+}
+.toast--error   { border-left: 4px solid var(--danger); }
+.toast--success { border-left: 4px solid var(--success); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(12px) scale(0.98); } }
+
+/* Connection status pill (phase 1 health check, reused by admin later) */
+.status-pill {
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3); border-radius: var(--radius-pill);
+  background: var(--bg-sunken); font-size: var(--fs-xs); color: var(--fg-muted);
+}
+.status-pill::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--fg-muted);
+}
+.status-pill[data-state="ok"]::before    { background: var(--success); }
+.status-pill[data-state="error"]::before { background: var(--danger); }
+.status-pill[data-state="wait"]::before  { background: var(--marigold); animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: 0.3; } }

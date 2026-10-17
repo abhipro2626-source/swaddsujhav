@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Swaad Sujhav — Har mann ki mithai</title>
+  <meta name="description" content="Swaad Sujhav, Muzaffarnagar: a festive mithai shop where Paaji, your friendly halwai, suggests the perfect sweet.">
+  <meta name="theme-color" content="#FFB800">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M8 40c0 9 11 14 24 14s24-5 24-14z' fill='%23C8961E'/%3E%3Cpath d='M32 10c6 8 8 14 8 19a8 8 0 0 1-16 0c0-5 2-11 8-19z' fill='%23FF9933'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://jqcrswigpamwmzjxlowu.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://upload.wikimedia.org">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Poppins:wght@400;500;600;700&family=Tiro+Devanagari+Hindi&family=Yatra+One&display=swap">
+
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+  <link rel="stylesheet" href="css/paaji.css">
+  <link rel="stylesheet" href="css/festive.css">
+</head>
+<body>
+  <a class="skip-link" href="#app">Skip to content</a>
+
+  <!-- Icon sprite (original line icons) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L20.5 8H6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.4" fill="currentColor"/><circle cx="17" cy="20" r="1.4" fill="currentColor"/></symbol>
+      <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+      <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-9-9a4.8 4.8 0 0 1 9-3 4.8 4.8 0 0 1 9 3c-2 4.6-9 9-9 9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+      <symbol id="i-heart-fill" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-9-9a4.8 4.8 0 0 1 9-3 4.8 4.8 0 0 1 9 3c-2 4.6-9 9-9 9z" fill="currentColor"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+      <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+      <symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 13h18M12 9v12M12 9c-2-4-6-4-6-1.5S10 9 12 9zm0 0c2-4 6-4 6-1.5S14 9 12 9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+      <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M17 9l5 6M22 9l-5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" fill="currentColor"/></symbol>
+      <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+      <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    </defs>
+  </svg>
+
+  <!-- Entry screen: one click is needed before the browser lets Paaji speak. -->
+  <section id="entry" class="entry" aria-labelledby="entry-title">
+    <div class="entry__glow" aria-hidden="true"></div>
+    <div class="entry__curtain entry__curtain--l" aria-hidden="true"></div>
+    <div class="entry__curtain entry__curtain--r" aria-hidden="true"></div>
+    <div class="entry__inner">
+      <svg class="diya" viewBox="0 0 120 90" aria-hidden="true">
+        <defs>
+          <radialGradient id="flameGrad" cx="50%" cy="70%" r="60%">
+            <stop offset="0%" stop-color="#FFF6C8"/><stop offset="45%" stop-color="#FFB800"/><stop offset="100%" stop-color="#FF6B1A"/>
+          </radialGradient>
+          <linearGradient id="diyaGrad" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#E07B2E"/><stop offset="100%" stop-color="#8A3B12"/>
+          </linearGradient>
+        </defs>
+        <g class="diya__flame">
+          <ellipse cx="60" cy="34" rx="16" ry="20" fill="#FFB800" opacity="0.25"/>
+          <path d="M60 8c8 11 11 18 11 25a11 11 0 0 1-22 0c0-7 3-14 11-25z" fill="url(#flameGrad)"/>
+        </g>
+        <path d="M10 52h100c-4 18-24 30-50 30S14 70 10 52z" fill="url(#diyaGrad)"/>
+        <path d="M10 52h100" stroke="#F5C542" stroke-width="3" stroke-linecap="round"/>
+        <g fill="#F5C542"><circle cx="32" cy="64" r="2.5"/><circle cx="46" cy="68" r="2.5"/><circle cx="60" cy="69" r="2.5"/><circle cx="74" cy="68" r="2.5"/><circle cx="88" cy="64" r="2.5"/></g>
+      </svg>
+      <h1 id="entry-title" class="entry__logo foil">Swaad Sujhav</h1>
+      <p class="entry__tagline">Har mann ki mithai, ek sujhav door</p>
+      <p class="entry__place">Muzaffarnagar ki mithi dukaan</p>
+      <button id="enter-btn" class="btn btn--gold btn--lg entry__cta" type="button">
+        Andar Aao <span aria-hidden="true">🪔</span>
+      </button>
+      <p class="entry__status"><span id="db-status" class="status-pill" data-state="wait">Connecting to the shop…</span></p>
+    </div>
+  </section>
+
+  <!-- Header -->
+  <header class="topbar" id="topbar" hidden>
+    <div class="topbar__inner container">
+      <a href="#/" class="brand" aria-label="Swaad Sujhav home">
+        <span class="brand__diya" aria-hidden="true">🪔</span>
+        <span class="brand__name foil">Swaad Sujhav</span>
+      </a>
+      <form class="search" role="search" id="search-form">
+        <label for="search-input" class="sr-only" data-i18n="search_label">Search sweets</label>
+        <svg class="search__icon" aria-hidden="true"><use href="#i-search"/></svg>
+        <input id="search-input" type="search" autocomplete="off" data-i18n-placeholder="search_ph"
+               placeholder="Rasgulla, kaju katli, baklava…" aria-autocomplete="list" aria-controls="search-suggest">
+        <button type="button" class="search__mic" id="mic-btn" aria-label="Search by voice" hidden>
+          <svg aria-hidden="true"><use href="#i-mic"/></svg>
+        </button>
+        <ul class="search__suggest" id="search-suggest" role="listbox" hidden></ul>
+      </form>
+      <nav class="topbar__actions" aria-label="Shop">
+        <button type="button" class="icon-btn" id="lang-btn" aria-label="Switch language to Hindi">
+          <span class="lang-label" aria-hidden="true">हि</span>
+        </button>
+        <button type="button" class="icon-btn" id="theme-btn" aria-label="Turn on Diwali Night theme">
+          <svg aria-hidden="true"><use href="#i-moon"/></svg>
+        </button>
+        <a href="#/profile" class="icon-btn hide-mobile" id="profile-btn" aria-label="Your account">
+          <svg aria-hidden="true"><use href="#i-user"/></svg>
+        </a>
+        <button type="button" class="icon-btn cart-btn" id="cart-btn" aria-label="Open cart, 0 items">
+          <svg aria-hidden="true"><use href="#i-cart"/></svg>
+          <span class="badge" id="cart-count" hidden>0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="app" class="app" tabindex="-1" hidden></main>
+
+  <!-- Mobile bottom navigation -->
+  <nav class="bottom-nav" id="bottom-nav" aria-label="Main" hidden>
+    <a href="#/" data-route="home"><svg aria-hidden="true"><use href="#i-home"/></svg><span data-i18n="nav_home">Home</span></a>
+    <a href="#/catalog" data-route="catalog"><svg aria-hidden="true"><use href="#i-grid"/></svg><span data-i18n="nav_catalog">Mithai</span></a>
+    <button type="button" data-route="search" id="bn-search"><svg aria-hidden="true"><use href="#i-search"/></svg><span data-i18n="nav_search">Search</span></button>
+    <button type="button" data-route="cart" id="bn-cart"><svg aria-hidden="true"><use href="#i-cart"/></svg><span data-i18n="nav_cart">Cart</span><span class="badge badge--sm" id="bn-cart-count" hidden>0</span></button>
+    <a href="#/profile" data-route="profile"><svg aria-hidden="true"><use href="#i-user"/></svg><span data-i18n="nav_profile">Profile</span></a>
+  </nav>
+
+  <!-- Cart drawer -->
+  <aside class="drawer" id="cart-drawer" aria-hidden="true" aria-labelledby="cart-title">
+    <div class="drawer__backdrop" data-close-drawer></div>
+    <div class="drawer__panel" role="dialog" aria-modal="true" aria-labelledby="cart-title" tabindex="-1">
+      <header class="drawer__head">
+        <h2 id="cart-title" data-i18n="cart_title">Aapki Thaali</h2>
+        <button type="button" class="icon-btn" data-close-drawer aria-label="Close cart"><svg aria-hidden="true"><use href="#i-close"/></svg></button>
+      </header>
+      <div class="drawer__body" id="cart-body"></div>
+      <footer class="drawer__foot" id="cart-foot"></footer>
+    </div>
+  </aside>
+
+  <!-- Paaji the mascot (phase 8) -->
+  <div id="paaji-root" class="paaji-root" hidden></div>
+
+  <div id="modal-root"></div>
+  <canvas id="fx-canvas" class="fx-canvas" aria-hidden="true"></canvas>
+  <div id="toasts" class="toast-stack" role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

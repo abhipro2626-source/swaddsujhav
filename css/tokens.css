@@ -1,0 +1,100 @@
+/* =====================================================================
+   Swaad Sujhav — design tokens
+   Colors, fonts, spacing and motion. Everything else reads from these.
+   ===================================================================== */
+
+:root {
+  /* Brand palette */
+  --saffron:      #FF9933;
+  --marigold:     #FFB800;
+  --gold:         #F5C542;
+  --gold-deep:    #C8961E;
+  --cream:        #FFF8E7;
+  --white:        #FFFFFF;
+  --kesar:        #FF6B1A;
+  --rani-pink:    #E6197A;
+  --deep-maroon:  #6B0F1A;
+  --royal-purple: #4B1D6B;
+  --pista:        #8DC63F;
+  --text:         #2B1608;
+  --text-muted:   #7A5A3A;
+
+  --gold-grad:    linear-gradient(135deg, #FFD54A 0%, #FFB800 45%, #FF9933 100%);
+  --festive-grad: linear-gradient(135deg, #E6197A 0%, #FF6B1A 50%, #FFB800 100%);
+  --foil-grad:    linear-gradient(100deg, #B8860B 0%, #FFE27A 22%, #C8961E 40%, #FFF1B5 55%, #C8961E 72%, #FFD54A 100%);
+
+  /* Semantic surfaces (themed below) */
+  --bg:           var(--cream);
+  --bg-raised:    var(--white);
+  --bg-sunken:    #FBEFD3;
+  --line:         rgba(200, 150, 30, 0.28);
+  --fg:           var(--text);
+  --fg-muted:     var(--text-muted);
+  --accent:       var(--rani-pink);
+  --on-gold:      var(--text);          /* dark text on gold, never white */
+  --success:      #2E7D32;
+  --danger:       #B3261E;
+
+  /* Type */
+  --font-festive: "Yatra One", "Kalam", cursive;
+  --font-hand:    "Kalam", cursive;
+  --font-ui:      "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-deva:    "Tiro Devanagari Hindi", "Noto Serif Devanagari", serif;
+
+  --fs-xs:   0.75rem;
+  --fs-sm:   0.875rem;
+  --fs-md:   1rem;
+  --fs-lg:   1.25rem;
+  --fs-xl:   clamp(1.5rem, 1.1rem + 1.6vw, 2.25rem);
+  --fs-hero: clamp(2.4rem, 1.4rem + 5vw, 5rem);
+
+  /* Space & shape */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+  --radius:    16px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+  --tap: 44px;                          /* minimum tap target */
+  --gutter: 16px;
+  --maxw: 1280px;
+
+  /* Elevation */
+  --shadow-sm:   0 2px 8px rgba(107, 15, 26, 0.08);
+  --shadow-md:   0 8px 24px rgba(107, 15, 26, 0.12);
+  --shadow-glow: 0 10px 40px rgba(255, 184, 0, 0.35);
+
+  /* Motion */
+  --ease:        cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 150ms;
+  --dur:      280ms;
+  --dur-slow: 600ms;
+
+  /* Layers */
+  --z-header: 50; --z-paaji: 70; --z-drawer: 80; --z-modal: 90; --z-toast: 100; --z-fx: 110;
+
+  color-scheme: light;
+}
+
+/* Diwali Night theme: deep maroon/purple night with glowing gold. */
+:root[data-theme="night"] {
+  --bg:        #1E0712;
+  --bg-raised: #2C0B1E;
+  --bg-sunken: #160410;
+  --line:      rgba(245, 197, 66, 0.25);
+  --fg:        #FFF3D6;
+  --fg-muted:  #E8C98E;
+  --accent:    #FF5FA8;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 10px 44px rgba(255, 184, 0, 0.45);
+  color-scheme: dark;
+}
+
+@media (min-width: 768px) {
+  :root { --gutter: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 1ms; --dur: 1ms; --dur-slow: 1ms; }
+}
