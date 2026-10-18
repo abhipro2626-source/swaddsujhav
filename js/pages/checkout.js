@@ -11,7 +11,7 @@ import { openAuthModal } from '../account.js';
 import { GIFT_BOX_RULE } from '../cartDrawer.js';
 import { mixSave, discountFor, getRules, qualifiesForSample } from '../deals.js';
 
-const SHOP = { name: 'Swaad Sujhav', address: 'Main Bazaar, Muzaffarnagar, Uttar Pradesh 251001', hours: '9am – 10pm' };
+const SHOP = { name: 'Swaad Sujhaav', address: 'Main Bazaar, Muzaffarnagar, Uttar Pradesh 251001', hours: '9am – 10pm' };
 const DELIVERY_SLOTS = ['10am–12pm', '12pm–3pm', '3pm–6pm', '6pm–9pm'];
 const PICKUP_SLOTS = ['10am–1pm', '1pm–5pm', '5pm–9pm'];
 
@@ -148,7 +148,7 @@ export async function renderCheckout(view) {
           <section class="checkout-card" aria-labelledby="step4">
             <h2 id="step4"><span class="step-num">4</span> Gift message <small class="muted">(optional)</small></h2>
             <label class="field"><span class="sr-only">Gift message</span>
-              <textarea name="gift" maxlength="300" placeholder="Happy Diwali, Nani! Love, Riya">${st.gift}</textarea></label>
+              <textarea name="gift" maxlength="300" placeholder="Happy Deepawali, Nani! Love, Riya">${st.gift}</textarea></label>
             <p class="muted small"><span id="gift-count">${st.gift.length}</span>/300 · We write it on a festive card inside the box.</p>
           </section>
         </form>
@@ -166,7 +166,7 @@ export async function renderCheckout(view) {
           <div class="summary-row"><span>Subtotal</span><span>${rupees(sub)}</span></div>
           <div class="summary-row"><span>${st.fulfilment === 'delivery' ? 'Delivery' : 'Pickup'}</span><span>Free</span></div>
           ${discount ? html`<div class="summary-row summary-row--save"><span>🍬 Mix & Save (${distinct} sweets, ${deal.percent}%)</span><span>−${rupees(discount)}</span></div>` : ''}
-          ${giftBox ? html`<div class="summary-row summary-row--gift"><span>🎁 Diwali gift box</span><span>Free</span></div>` : ''}
+          ${giftBox ? html`<div class="summary-row summary-row--gift"><span>🎁 Deepawali gift box</span><span>Free</span></div>` : ''}
           ${qualifiesForSample(distinct) ? html`<div class="summary-row summary-row--gift"><span>✨ Free taste of a new arrival</span><span>Free</span></div>` : ''}
           <div class="summary-row summary-row--total"><span>Total</span><strong>${rupees(sub - discount)}</strong></div>
           ${deal.next ? html`<p class="summary-nudge">🍬 Add ${deal.next.needed} more different sweet${deal.next.needed > 1 ? 's' : ''} for ${deal.next.percent}% off · <a href="#/catalog">browse</a></p>` : ''}

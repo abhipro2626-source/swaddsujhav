@@ -39,7 +39,7 @@ export async function renderProfile(view) {
           <h1 class="page-title">Aao ji, apna account banao</h1>
           <p class="muted">Save your taste, favourites and orders. Paaji will remember what you love.</p>
           <ul class="perks">
-            <li>💛 Personal sujhav from Paaji's taste quiz</li>
+            <li>💛 Personal sujhaav from Paaji's taste quiz</li>
             <li>❤️ Favourites and one-tap "Order again"</li>
             <li>📦 Live order tracking</li>
           </ul>

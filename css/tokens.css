@@ -1,5 +1,5 @@
 /* =====================================================================
-   Swaad Sujhav — design tokens
+   Swaad Sujhaav — design tokens
    Colors, fonts, spacing and motion. Everything else reads from these.
    ===================================================================== */
 
@@ -76,7 +76,7 @@
   color-scheme: light;
 }
 
-/* Diwali Night theme: deep maroon/purple night with glowing gold. */
+/* Deepawali Night theme: deep maroon/purple night with glowing gold. */
 :root[data-theme="night"] {
   --bg:        #1E0712;
   --bg-raised: #2C0B1E;

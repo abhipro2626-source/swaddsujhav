@@ -1,4 +1,4 @@
-"""Original shayari for Swaad Sujhav (written for this shop; not from any poet, song or film).
+"""Original shayari for Swaad Sujhaav (written for this shop; not from any poet, song or film).
 
 Each entry: (sweet name or None, category or None, occasion, devanagari, roman, english)
 Sweet names must match the catalog `name` exactly.
@@ -74,9 +74,9 @@ SWEET = [
     ("Milk Cake", "बीच में सुनहरा, किनारे पे गोरा,\nमिल्क केक का टुकड़ा कभी न लगे थोड़ा।",
      "Beech mein sunehra, kinaare pe gora,\nmilk cake ka tukda kabhi na lage thoda.",
      "Golden in the middle, pale at the edges; a piece of milk cake never feels like enough."),
-    ("Kaju Katli", "चाँदी की परत ओढ़े हीरे सी कटी,\nदीवाली हो या सोमवार, काजू कतली ही जँची।",
-     "Chaandi ki parat odhe heere si kati,\nDiwali ho ya Somvaar, kaju katli hi janchi.",
-     "Cut like a diamond, wearing silver; Diwali or a Monday, kaju katli always fits."),
+    ("Kaju Katli", "चाँदी की परत ओढ़े हीरे सी कटी,\nदीपावली हो या सोमवार, काजू कतली ही जँची।",
+     "Chaandi ki parat odhe heere si kati,\nDeepawali ho ya Somvaar, kaju katli hi janchi.",
+     "Cut like a diamond, wearing silver; Deepawali or a Monday, kaju katli always fits."),
     ("Kaju Pista Roll", "काजू ने लपेटा पिस्ते को प्यार से,\nरोल बना ऐसा, बिके हर बाज़ार से।",
      "Kaju ne lapeta piste ko pyaar se,\nroll bana aisa, bike har baazaar se.",
      "Cashew wrapped pistachio with love; such a roll sells in every market."),
@@ -280,14 +280,14 @@ CATEGORY = [
 GENERAL = [
     # (occasion, devanagari, roman, english)
     ("purchase", "मीठा चुना है तो दिन भी मीठा जाएगा,\nस्वाद सुझाव का प्यार साथ आएगा।",
-     "Meetha chuna hai toh din bhi meetha jaayega,\nSwaad Sujhav ka pyaar saath aayega.",
-     "You've chosen sweet, so the day will be sweet too; Swaad Sujhav's love comes along."),
+     "Meetha chuna hai toh din bhi meetha jaayega,\nSwaad Sujhaav ka pyaar saath aayega.",
+     "You've chosen sweet, so the day will be sweet too; Swaad Sujhaav's love comes along."),
     ("purchase", "थाली में मिठाई, चेहरे पे मुस्कान,\nयही है हमारी दुकान की पहचान।",
      "Thaali mein mithaai, chehre pe muskaan,\nyahi hai hamaari dukaan ki pehchaan.",
      "Sweets on the plate, a smile on the face; that's what our shop is known for."),
     ("welcome", "आओ जी आओ, मीठी है ये गली,\nस्वाद सुझाव में हर मुराद है फली।",
-     "Aao ji aao, meethi hai ye gali,\nSwaad Sujhav mein har muraad hai phali.",
-     "Come in, come in, this lane is sweet; every wish comes true at Swaad Sujhav."),
+     "Aao ji aao, meethi hai ye gali,\nSwaad Sujhaav mein har muraad hai phali.",
+     "Come in, come in, this lane is sweet; every wish comes true at Swaad Sujhaav."),
     ("welcome", "दरवाज़े पे दीया, अंदर मिठास,\nपधारो जी, आज कुछ होगा ख़ास।",
      "Darwaaze pe diya, andar mithaas,\npadhaaro ji, aaj kuch hoga khaas.",
      "A diya at the door, sweetness inside; welcome, something special will happen today."),
@@ -303,13 +303,13 @@ GENERAL = [
     ("thanks", "मीठा खाइए, मीठा बोलिए,\nफिर आइए, और दिल खोलिए।",
      "Meetha khaaiye, meetha boliye,\nphir aaiye, aur dil kholiye.",
      "Eat sweet, speak sweet; come again and open your heart."),
-    ("diwali", "दीयों की कतार, मिठाई की बहार,\nइस दीवाली हो ख़ुशियों का अंबार।",
-     "Diyon ki kataar, mithaai ki bahaar,\nis Diwali ho khushiyon ka ambaar.",
-     "Rows of diyas and a spring of sweets; may this Diwali bring a mountain of joy."),
+    ("diwali", "दीयों की कतार, मिठाई की बहार,\nइस दीपावली हो ख़ुशियों का अंबार।",
+     "Diyon ki kataar, mithaai ki bahaar,\nis Deepawali ho khushiyon ka ambaar.",
+     "Rows of diyas and a spring of sweets; may this Deepawali bring a mountain of joy."),
     ("diwali", "रौशनी घर में, मिठास ज़ुबान पे,\nलक्ष्मी जी बरसें हर दुकान पे।",
      "Raushni ghar mein, mithaas zubaan pe,\nLakshmi ji barsein har dukaan pe.",
      "Light in the home, sweetness on the tongue; may Lakshmi shower blessings on every shop."),
-    ("diwali", "पटाख़ों से ज़्यादा चमके आपकी मुस्कान,\nस्वाद सुझाव की तरफ़ से दीवाली का सलाम।",
-     "Patakhon se zyaada chamke aapki muskaan,\nSwaad Sujhav ki taraf se Diwali ka salaam.",
-     "May your smile sparkle more than fireworks; Diwali greetings from Swaad Sujhav."),
+    ("diwali", "पटाख़ों से ज़्यादा चमके आपकी मुस्कान,\nस्वाद सुझाव की तरफ़ से दीपावली का सलाम।",
+     "Patakhon se zyaada chamke aapki muskaan,\nSwaad Sujhaav ki taraf se Deepawali ka salaam.",
+     "May your smile sparkle more than fireworks; Deepawali greetings from Swaad Sujhaav."),
 ]

@@ -155,7 +155,7 @@ export const REGIONS = [
 ];
 
 export const OCCASIONS = [
-  { key: 'diwali', label: 'Diwali', emoji: '🪔' },
+  { key: 'diwali', label: 'Deepawali', emoji: '🪔' },
   { key: 'wedding', label: 'Wedding', emoji: '💍' },
   { key: 'birthday', label: 'Birthday', emoji: '🎂' },
   { key: 'rakhi', label: 'Raksha Bandhan', emoji: '🧵' },

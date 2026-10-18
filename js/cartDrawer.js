@@ -10,7 +10,7 @@ import { store } from './state.js';
 import { mixSave, discountFor, getRules, qualifiesForSample } from './deals.js';
 
 // Configurable combo rule (also shown on the home page offers).
-export const GIFT_BOX_RULE = { threshold: 999, reward: 'a free Diwali gift box' };
+export const GIFT_BOX_RULE = { threshold: 999, reward: 'a free Deepawali gift box' };
 
 const drawer = () => $('#cart-drawer');
 let opener = null;

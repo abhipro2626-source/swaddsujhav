@@ -7,7 +7,7 @@ import { forUser } from '../recommend.js';
 import { store } from '../state.js';
 import { supabase } from '../supabase.js';
 
-// Diwali 2026: Sunday 8 November (Kartik Amavasya). Lakshmi Puja muhurat in the
+// Deepawali 2026: Sunday 8 November (Kartik Amavasya). Lakshmi Puja muhurat in the
 // Delhi–NCR region (nearest to Muzaffarnagar) begins about 5:30 PM IST.
 export const DIWALI = new Date('2026-11-08T17:30:00+05:30');
 
@@ -19,8 +19,8 @@ const MOODS = [
 ];
 
 const OFFERS = [
-  '🎁 Free Diwali gift box on orders above ₹999',
-  '🪔 Diwali Special: 15 festive mithai, freshly made daily',
+  '🎁 Free Deepawali gift box on orders above ₹999',
+  '🪔 Deepawali Special: 15 festive mithai, freshly made daily',
   '🩺 New sugar-free range — kaju katli, anjeer, gulab jamun',
   '🚚 Same-day delivery across Muzaffarnagar',
 ];
@@ -238,9 +238,9 @@ function startCountdowns() {
           <span class="countdown__unit"><span class="countdown__num">${two(m)}</span> min</span>
           <span class="countdown__unit"><span class="countdown__num">${two(s)}</span> sec</span>
           <span class="countdown__label">Lakshmi Puja tak · Ravivaar, 8 Nov, shaam 5:30</span>`;
-        cd.setAttribute('aria-label', `${d} days ${h} hours ${m} minutes until Diwali Lakshmi Puja, Sunday 8 November, 5:30 PM`);
+        cd.setAttribute('aria-label', `${d} days ${h} hours ${m} minutes until Deepawali Lakshmi Puja, Sunday 8 November, 5:30 PM`);
       } else if (ms > -2 * 86400000) {
-        cd.textContent = '🪔 Shubh Deepavali! Lakshmi Puja ki dher saari shubhkaamnayein 🪔';
+        cd.textContent = '🪔 Shubh Deepawali! Lakshmi Puja ki dher saari shubhkaamnayein 🪔';
       } else cd.textContent = '';
     }
     if (mt) {

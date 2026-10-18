@@ -1,4 +1,4 @@
-"""Swaad Sujhav recommendation engine — free, local machine learning.
+"""Swaad Sujhaav recommendation engine — free, local machine learning.
 
 Pipeline (see README → "How recommendations work"):
   1. Content model  — sentence-transformer embeddings of each sweet's text
@@ -267,7 +267,8 @@ def train(data: dict) -> Model:
         else:
             collab_score = np.zeros(n, dtype=np.float32)
         m.user_rows[u] = {"liked": liked, "taste": taste_score.astype(np.float32),
-                          "collab": collab_score.astype(np.float32), "diet": taste.get("diet") or {}}
+                          "collab": collab_score.astype(np.float32), "diet": taste.get("diet") or {},
+                          "profile": taste}
 
     m.trained_at = time.time()
     m.metrics = {
@@ -368,7 +369,8 @@ def _reason(m: Model, i: int, parts: dict, liked: dict, occasion: str | None) ->
     if best == "new":
         return {"reason": "Naya hai!", "reason_kind": "new"}
     if best == "occasion":
-        return {"reason": f"Perfect for {(occasion or 'Diwali').title()}", "reason_kind": "occasion"}
+        label = {"diwali": "Deepawali", "rakhi": "Raksha Bandhan", "guests": "guests", "office": "office gifting", "puja": "puja"}.get(occasion or "diwali", (occasion or "").title())
+        return {"reason": f"Perfect for {label}", "reason_kind": "occasion"}
     return {"reason": "Bestseller", "reason_kind": "popular"}
 
 

@@ -1,5 +1,5 @@
 -- =====================================================================
--- Swaad Sujhav — database schema
+-- Swaad Sujhaav — database schema
 -- Tables, indexes, Row Level Security, triggers and RPC functions.
 -- Safe to run on a fresh Supabase project (SQL editor → Run).
 -- =====================================================================
@@ -511,7 +511,7 @@ as $$
 $$;
 
 -- ---------------------------------------------------------------------
--- recommend_for_user: the main "Paaji's Sujhav for You" row.
+-- recommend_for_user: the main "Paaji's Sujhaav for You" row.
 --   score = 0.40*taste + 0.25*together + 0.15*popularity + 0.10*new + 0.10*occasion
 -- Works for guests too (no taste/history → popularity + new + festive).
 -- p_exclude: sweet ids to skip (e.g. a guest's localStorage cart).
@@ -664,7 +664,7 @@ begin
                     'Matches your taste')
            when e.c_new > 0 and e.c_new = e.best then 'Naya hai!'
            when e.c_occ > 0 and e.c_occ = e.best
-             then 'Perfect for ' || initcap(coalesce(p_occasion, 'Diwali'))
+             then 'Perfect for ' || case coalesce(p_occasion, 'diwali') when 'diwali' then 'Deepawali' when 'rakhi' then 'Raksha Bandhan' else initcap(p_occasion) end
            else 'Bestseller'
          end,
          case
@@ -1190,7 +1190,7 @@ grant  execute on function public.customers_also_bought(bigint, int)        to a
 
 
 -- =====================================================================
--- Swaad Sujhav — feature additions (part of schema.sql;
+-- Swaad Sujhaav — feature additions (part of schema.sql;
 -- later definitions replace the earlier ones above). Final versions.
 --   • Mix & Save, free taste, honest social proof
 --   • Custom gift boxes (server-priced)

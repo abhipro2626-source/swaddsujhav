@@ -254,9 +254,9 @@ def _reply(f: dict, items: list, m: ml.Model) -> str:
     if f["sweetness"] == "low" and "sugar_free" not in f["diet"]:
         wish.append("halki")
     if f["occasion"]:
-        wish.append({"wedding": "shaadi layi", "diwali": "Diwali layi", "birthday": "birthday layi", "guests": "mehmaanan layi",
+        wish.append({"wedding": "shaadi layi", "diwali": "Deepawali layi", "birthday": "birthday layi", "guests": "mehmaanan layi",
                      "office": "office gift layi", "puja": "prasad layi", "rakhi": "Rakhi layi", "eid": "Eid layi", "holi": "Holi layi"}[f["occasion"]])
     if f["max_price"]:
         wish.append(f"Rs {f['max_price']} tak")
     lead = f"{' '.join(wish).capitalize()} mithai? " if wish else ""
-    return f"{lead}Mera sujhav hai {top}! Chalo ji, dikhaunda haan."
+    return f"{lead}Mera sujhaav hai {top}! Chalo ji, dikhaunda haan."

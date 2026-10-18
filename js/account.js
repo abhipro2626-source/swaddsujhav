@@ -15,8 +15,8 @@ export function openAuthModal(mode = 'login') {
       <div class="auth">
         <div class="auth__head">
           <span class="auth__diya" aria-hidden="true">🪔</span>
-          <h2>${isLogin ? 'Phir se swagat hai!' : 'Swaad Sujhav parivaar mein aao'}</h2>
-          <p class="muted">${isLogin ? 'Log in to see your sujhav, orders and favourites.'
+          <h2>${isLogin ? 'Phir se swagat hai!' : 'Swaad Sujhaav parivaar mein aao'}</h2>
+          <p class="muted">${isLogin ? 'Log in to see your sujhaav, orders and favourites.'
                                      : 'Sign up to save your taste, favourites and orders.'}</p>
         </div>
         <form class="auth__form" novalidate>

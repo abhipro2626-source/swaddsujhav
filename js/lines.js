@@ -4,7 +4,7 @@
 
 export const LINES = {
   welcome: [
-    'Paaji, tussi padharo! Swaad Sujhav vich tuhada swagat hai!',
+    'Paaji, tussi padharo! Swaad Sujhaav vich tuhada swagat hai!',
     'Aao ji aao, aaj kuch meetha ho jaaye!',
     'Jai Shree Ram ji! Muzaffarnagar di sabton mithi dukaan vich swagat hai.',
     'Jee aayan nu! Thaali saji hai, bas tuhadi pasand di kami si.',
@@ -103,7 +103,7 @@ export const PAIRS = [
   ['Jalebi', 'Rabri', 'Garam jalebi te thandi rabri — swarg ji, swarg!'],
   ['Gajar Ka Halwa', 'Gulab Jamun', 'Gajar halwa te gulab jamun, sardiyan di shahi jodi!'],
   ['Baklava', 'Kunafa', 'Baklava de naal kunafa? Turkey te Arab dono ik thaali vich!'],
-  ['Kaju Katli', 'Soan Papdi', 'Kaju katli te soan papdi — Diwali da asli dabba!'],
+  ['Kaju Katli', 'Soan Papdi', 'Kaju katli te soan papdi — Deepawali da asli dabba!'],
 ];
 
 const lastUsed = new Map();

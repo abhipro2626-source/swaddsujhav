@@ -50,7 +50,7 @@ export async function renderGiftBox(view) {
             <span class="ribbon-opt__swatch" style="--c:${r.color}"></span>${r.label}</label>`)}
         </fieldset>
         <label class="field"><span>Message card (optional)</span>
-          <textarea name="gb-message" maxlength="200" placeholder="Shubh Deepavali! Mooh meetha karo 🪔"></textarea></label>
+          <textarea name="gb-message" maxlength="200" placeholder="Shubh Deepawali! Mooh meetha karo 🪔"></textarea></label>
         <div class="gb-total" aria-live="polite" id="gb-total"></div>
         <button type="button" class="btn btn--gold btn--lg btn--block" data-add-box disabled>Add box to thaali</button>
       </section>

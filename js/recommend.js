@@ -47,7 +47,7 @@ function hydrate(rows, limit) {
   return { items, reasons };
 }
 
-/** "Paaji's Sujhav for You" (works for guests too). */
+/** "Paaji's Sujhaav for You" (works for guests too). */
 export async function forUser({ limit = 12, occasion = null, mood = null } = {}) {
   await loadCatalog();
   const exclude = sweetIdsInCart();

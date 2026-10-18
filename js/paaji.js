@@ -42,7 +42,7 @@ function paajiSVG() {
     <path d="M110 150v126" stroke="#E2C27A" stroke-width="1.5"/>
     <g fill="#C8961E"><circle cx="110" cy="166" r="2.2"/><circle cx="110" cy="180" r="2.2"/><circle cx="110" cy="194" r="2.2"/></g>
     <path d="M96 150c4 8 24 8 28 0" fill="none" stroke="#FF9933" stroke-width="4" stroke-linecap="round"/>
-    <!-- gold Diwali shawl over the left shoulder -->
+    <!-- gold Deepawali shawl over the left shoulder -->
     <path d="M60 176c10-18 30-26 44-24l-26 96c-10 2-18 0-24-4z" fill="url(#pj-rani)"/>
     <path d="M62 178c9-16 27-23 40-22" fill="none" stroke="url(#pj-gold)" stroke-width="5" stroke-linecap="round"/>
     <path d="M78 248l-24-4" stroke="url(#pj-gold)" stroke-width="4" stroke-linecap="round"/>
@@ -428,13 +428,13 @@ export function initPaaji() {
   document.addEventListener('ss:say', (e) => {
     const d = e.detail || {};
     const text = d.text || (d.trigger ? line(d.trigger, d.vars || {}) : '');
-    if (text) say({ text, mood: d.mood || 'talk', priority: d.priority || 'normal', extra: d.extra });
+    if (text) say({ text, speakText: d.speakText, mood: d.mood || 'talk', priority: d.priority || 'normal', extra: d.extra, group: d.group });
   });
   document.addEventListener('ss:added', onAdded);
   document.addEventListener('ss:removed', () => { if (Math.random() < 0.4) say({ text: line('removed'), mood: 'think' }); });
   document.addEventListener('ss:login', () => setTimeout(() => say({ text: line('return', { name: firstName() }), mood: 'wave', priority: 'high' }), 400));
   document.addEventListener('ss:celebrate', () => setState('dance', 3200));
-  document.addEventListener('ss:quiz-done', () => { setState('celebrate', 2500); say({ text: 'Bas ji! Hun meri har sujhav tuhade swaad naal hogi.', mood: 'celebrate', priority: 'high' }); });
+  document.addEventListener('ss:quiz-done', () => { setState('celebrate', 2500); say({ text: 'Bas ji! Hun meri har sujhaav tuhade swaad naal hogi.', mood: 'celebrate', priority: 'high' }); });
   document.addEventListener('ss:order-placed', async (e) => {
     setState('dance', 4200);
     say({ text: line('order'), mood: 'dance', priority: 'high', hold: 400 });

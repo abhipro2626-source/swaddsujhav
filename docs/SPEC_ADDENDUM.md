@@ -1,4 +1,4 @@
-# Swaad Sujhav — Spec Addendum
+# Swaad Sujhaav — Spec Addendum
 
 Changes requested by the shop owner on top of the master prompt. Where this file and the
 master prompt disagree, **this file wins**.

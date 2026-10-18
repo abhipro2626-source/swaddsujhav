@@ -135,7 +135,7 @@ function applyTheme(theme) {
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'night' ? '#2C0B1E' : '#FFB800');
 }
 
-/** Festival Mode: near Diwali, evenings open in Diwali Night unless the user chose otherwise. */
+/** Festival Mode: near Deepawali, evenings open in Deepawali Night unless the user chose otherwise. */
 function initialTheme() {
   const saved = local.get('ss:theme');
   if (saved === 'night' || saved === 'day') return saved;
@@ -257,7 +257,7 @@ function initGlobalClicks() {
     const next = store.get('theme') === 'night' ? 'day' : 'night';
     local.set('ss:theme', next);
     applyTheme(next);
-    if (next === 'night') document.dispatchEvent(new CustomEvent('ss:say', { detail: { text: 'Diwali di raat! Diye jala dite ne ji 🪔', mood: 'celebrate' } }));
+    if (next === 'night') document.dispatchEvent(new CustomEvent('ss:say', { detail: { text: 'Deepawali di raat! Diye jala dite ne ji 🪔', mood: 'celebrate' } }));
   });
   $('#lang-btn')?.addEventListener('click', toggleLang);
 }
@@ -275,7 +275,7 @@ async function showConnection() {
   const { ok, count: n, error } = await checkConnection();
   pill.dataset.state = ok ? 'ok' : 'error';
   pill.textContent = ok ? `Dukaan khuli hai · ${n} mithaiyan ready` : 'Could not reach the shop';
-  if (!ok) console.warn('[Swaad Sujhav] connection check failed:', error);
+  if (!ok) console.warn('[Swaad Sujhaav] connection check failed:', error);
 }
 
 function revealApp() {

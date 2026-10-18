@@ -1,4 +1,4 @@
-// Order confirmation + live tracking (Supabase Realtime), and "Paaji's next sujhav".
+// Order confirmation + live tracking (Supabase Realtime), and "Paaji's next sujhaav".
 import { html, raw, rupees, sweetImage, rangoliLoader, emptyState } from '../ui.js';
 import { sweetName } from '../i18n.js';
 import { supabase } from '../supabase.js';
@@ -45,7 +45,7 @@ export async function renderOrder(view, id, params) {
           <div><dt>${order.fulfilment === 'delivery' ? 'Delivery to' : 'Pickup at'}</dt>
             <dd>${order.fulfilment === 'delivery' && order.address
               ? `${order.address.name}, ${order.address.line1}${order.address.line2 ? `, ${order.address.line2}` : ''}, ${order.address.city} ${order.address.pincode || ''}`
-              : 'Swaad Sujhav, Main Bazaar, Muzaffarnagar'}</dd></div>
+              : 'Swaad Sujhaav, Main Bazaar, Muzaffarnagar'}</dd></div>
           <div><dt>Time</dt><dd>${order.delivery_slot || '—'}</dd></div>
           <div><dt>Payment</dt><dd>${order.payment_method === 'cod' ? '💵 Cash on Delivery' : '🏪 Pay at Shop'}</dd></div>
           ${order.gift_message ? html`<div><dt>Gift card</dt><dd class="gift-msg">“${order.gift_message}”</dd></div>` : ''}
@@ -74,12 +74,12 @@ export async function renderOrder(view, id, params) {
   };
   draw(o);
 
-  // Paaji's next sujhav (excludes what was just bought).
+  // Paaji's next sujhaav (excludes what was just bought).
   forUser({ limit: 10 }).then(({ items: recs, reasons }) => {
     const bought = new Set(items.map((i) => i.sweet_id));
     const list = recs.filter((s) => !bought.has(s.id));
     const slot = view.querySelector('#next-slot');
-    if (slot && list.length) slot.innerHTML = row({ id: 'row-next', title: "Paaji's next sujhav for you", items: list, reasons });
+    if (slot && list.length) slot.innerHTML = row({ id: 'row-next', title: "Paaji's next sujhaav for you", items: list, reasons });
     if (isNew) {
       document.dispatchEvent(new CustomEvent('ss:order-placed', { detail: { order: o, next: list[0]?.name } }));
       history.replaceState(null, '', `#/order/${o.id}`);

@@ -69,7 +69,7 @@ const QUESTIONS = [
       { v: 'Hyderabad', e: '🏰', l: 'Hyderabad & Awadh' },
       { v: 'World', e: '🌍', l: 'Around the world' },
     ],
-    react: () => 'Shukriya ji! Hun main tuhade layi khaas sujhav bana raha haan.',
+    react: () => 'Shukriya ji! Hun main tuhade layi khaas sujhaav bana raha haan.',
   },
 ];
 
@@ -185,7 +185,7 @@ export function openQuiz({ fromSignup = false } = {}) {
           done = true;
           document.dispatchEvent(new CustomEvent('ss:quiz-done', { detail: profile }));
           modal.close('done');
-          toast('Taste profile saved! Paaji ke sujhav ab tuhade layi hain.', 'success');
+          toast('Taste profile saved! Paaji ke sujhaav ab tuhade layi hain.', 'success');
           resolve(profile);
         } catch (err) {
           btn.disabled = false;

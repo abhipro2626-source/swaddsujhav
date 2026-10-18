@@ -1,4 +1,4 @@
-"""Swaad Sujhav server.
+"""Swaad Sujhaav server.
 
     python backend/app.py            # http://localhost:8130
 
@@ -76,7 +76,7 @@ async def lifespan(_: FastAPI):
     await db.close()
 
 
-app = FastAPI(title="Swaad Sujhav API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="Swaad Sujhaav API", version="1.0.0", lifespan=lifespan)
 
 # The frontend may be hosted elsewhere (Netlify/Vercel) and call this API.
 app.add_middleware(
@@ -150,7 +150,44 @@ async def admin_retrain(authorization: str | None = Header(default=None)):
 
 @app.get("/api/tts/status")
 async def tts_status():
-    return {"enabled": tts.enabled(), "voice": tts.VOICE_ID if tts.enabled() else None}
+    return {"enabled": tts.enabled(), "voice": tts.active_voice()}
+
+
+@app.post("/api/chat")
+async def chat(request: Request, payload: dict = Body(...), authorization: str | None = Header(default=None)):
+    """Talk to Paaji. Our ML retrieves real candidate sweets; Gemini (if configured)
+    writes Paaji's reply and picks only from those. Falls back to rule-based Ask Paaji."""
+    from swaad_sujhav import ask, gemini
+    ip = request.client.host if request.client else "?"
+    if not tts.allowed(f"chat:{ip}", per_minute=20):
+        raise HTTPException(429, "Thoda saans le lo ji — too many messages.")
+    message = str(payload.get("message", "")).strip()[:400]
+    history = payload.get("history") if isinstance(payload.get("history"), list) else []
+    if not message:
+        raise HTTPException(400, "Empty message")
+    m = _model()
+    user = await current_user(authorization)
+    uid = user["id"] if user else None
+    base = await asyncio.to_thread(ask.ask, m, message, uid, 12)       # parse + semantic retrieval
+    if base["go"] and base["go"]["type"] != "sweet":                    # budget / gift box / cart / orders
+        return {**base, "reply_hi": base["reply"], "engine": "rules"}
+    if not gemini.enabled() or not base["items"]:
+        return {**base, "reply_hi": base["reply"], "engine": "rules"}
+    candidates = []
+    for it in base["items"]:
+        s = dict(m.sweets[m.idx[it["sweet_id"]]])
+        candidates.append(s)
+    taste = (m.user_rows.get(uid) or {}).get("profile") if uid else None
+    try:
+        out = await gemini.chat(db.client(), message, history, candidates, taste)
+    except Exception as err:  # noqa: BLE001 — never break the chat; fall back
+        log.info("Gemini fallback: %s", err)
+        return {**base, "reply_hi": base["reply"], "engine": "rules"}
+    picks = out["picks"] or [base["items"][0]["sweet_id"]]
+    items = [{"sweet_id": p, "reason": "Paaji's pick"} for p in picks]
+    top = m.sweets[m.idx[picks[0]]]
+    return {"reply": out["reply"], "reply_hi": out["reply_hi"], "items": items, "filters": base["filters"],
+            "go": {"type": "sweet", "slug": ask._slug(top["name"])}, "engine": "gemini"}
 
 
 @app.post("/api/tts")

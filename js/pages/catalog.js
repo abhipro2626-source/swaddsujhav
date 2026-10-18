@@ -139,7 +139,7 @@ export async function renderCatalog(app, params) {
     $('#catalog-count', app).textContent = t('results', { n: list.length }) + (st.q ? ` · "${st.q}"` : '');
     const active = [
       st.q && ['q', st.q, `🔎 ${st.q}`],
-      st.flag && ['flag', st.flag, { new: '✨ New', festive: '🪔 Diwali', world: '🌍 World', bestseller: '🔥 Bestseller' }[st.flag] || st.flag],
+      st.flag && ['flag', st.flag, { new: '✨ New', festive: '🪔 Deepawali', world: '🌍 World', bestseller: '🔥 Bestseller' }[st.flag] || st.flag],
       ...st.category.map((c) => ['category', c, CATEGORY_LABELS[c]]),
       ...st.diet.map((d) => ['diet', d, t(`d_${d}`)]),
       ...st.sweetness.map((n) => ['sweetness', n, '🍬'.repeat(n)]),

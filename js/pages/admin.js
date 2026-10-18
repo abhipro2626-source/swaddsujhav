@@ -21,7 +21,7 @@ export async function renderAdmin(view, tab) {
   view.innerHTML = html`
   <div class="page page--admin container">
     <header class="admin-head">
-      <h1 class="page-title">🛠️ Admin · Swaad Sujhav</h1>
+      <h1 class="page-title">🛠️ Admin · Swaad Sujhaav</h1>
       <a class="link-btn" href="#/">← Back to shop</a>
     </header>
     <nav class="admin-tabs" aria-label="Admin sections">
@@ -161,7 +161,7 @@ async function inventory(body) {
                 <input type="number" min="0" step="1" class="mini-input ${v.stock_qty === 0 ? 'is-out' : v.stock_qty != null && v.stock_qty <= 5 ? 'is-low' : ''}" data-stock="${v.id}" value="${v.stock_qty ?? ''}" placeholder="∞" aria-label="Stock of ${s.name} ${v.weight_label}">
               </label>`)}</div></td>
             <td><div class="flag-toggles">
-              ${[['in_stock', 'In stock'], ['is_new', 'New'], ['is_festive', 'Diwali']].map(([k, l]) => html`
+              ${[['in_stock', 'In stock'], ['is_new', 'New'], ['is_festive', 'Deepawali']].map(([k, l]) => html`
                 <label class="check check--sm"><input type="checkbox" data-flag="${k}" data-id="${s.id}" ${s[k] ? 'checked' : ''}> ${l}</label>`)}
             </div></td>
             <td><button type="button" class="btn btn--sm btn--gold" data-save-row="${s.id}">Save</button></td>
@@ -261,7 +261,7 @@ function editSweet(s, onDone) {
           <input name="variants" value="${variants}"></label>
       </div>
       <div class="flag-toggles">
-        ${[['is_sugar_free', 'Sugar-free'], ['is_vegan', 'Vegan'], ['is_jain', 'Jain'], ['is_eggless', 'Eggless'], ['is_gluten_free', 'Gluten-free'], ['is_new', 'New arrival'], ['is_festive', 'Diwali special'], ['in_stock', 'In stock']]
+        ${[['is_sugar_free', 'Sugar-free'], ['is_vegan', 'Vegan'], ['is_jain', 'Jain'], ['is_eggless', 'Eggless'], ['is_gluten_free', 'Gluten-free'], ['is_new', 'New arrival'], ['is_festive', 'Deepawali special'], ['in_stock', 'In stock']]
           .map(([k, l]) => html`<label class="check"><input type="checkbox" name="${k}" ${s[k] ? 'checked' : ''}> ${l}</label>`)}
       </div>
       <div class="sweet-form__actions">
@@ -309,14 +309,14 @@ function editSweet(s, onDone) {
       variants: f.elements.variants.value.trim(),
       base_price: String(f.elements.variants.value.split(':')[1] || s.base_price),
       price_unit: f.elements.variants.value.split(':')[0]?.trim() || s.price_unit,
-      image_url: photoUrl || s.image_url || '', image_credit: photoUrl ? 'Photo: Swaad Sujhav' : (s.image_credit || ''),
+      image_url: photoUrl || s.image_url || '', image_credit: photoUrl ? 'Photo: Swaad Sujhaav' : (s.image_credit || ''),
     };
     for (const k of ['is_sugar_free', 'is_vegan', 'is_jain', 'is_eggless', 'is_gluten_free', 'is_new', 'is_festive', 'in_stock']) row[k] = String(f.elements[k].checked);
     // Reuse the import RPC: validated server-side, upserts sweet + variants in one go.
     const { data, error } = await supabase.rpc('admin_import_sweets', { p_rows: [row], p_mode: 'catalog' });
     if (error) { err(error); return; }
     if (data.errors?.length) { err(data.errors[0].message); return; }
-    if (photoUrl) await supabase.from('sweets').update({ image_url: photoUrl, image_credit: 'Photo: Swaad Sujhav' }).eq('slug', row.slug);
+    if (photoUrl) await supabase.from('sweets').update({ image_url: photoUrl, image_credit: 'Photo: Swaad Sujhaav' }).eq('slug', row.slug);
     toast(isNew ? 'Sweet created ✨' : 'Saved', 'success');
     m.close(); onDone().catch(err);
   });

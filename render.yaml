@@ -25,5 +25,17 @@ services:
         value: JBFqnCBsd6RMkjVDRZzb     # George
       - key: ELEVENLABS_MODEL
         value: eleven_multilingual_v2
+      - key: GEMINI_API_KEY             # secret: paste in the Render dashboard
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: TTS_PROVIDER
+        value: azure                    # Azure Arjun first, ElevenLabs George as backup
+      - key: AZURE_SPEECH_KEY           # secret: paste in the Render dashboard
+        sync: false
+      - key: AZURE_SPEECH_REGION
+        value: centralindia
+      - key: AZURE_VOICE
+        value: hi-IN-ArjunNeural
       - key: RETRAIN_EVERY_MINUTES
         value: "60"

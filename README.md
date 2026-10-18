@@ -1,4 +1,4 @@
-# 🪔 Swaad Sujhav — *Har mann ki mithai, ek sujhav door*
+# 🪔 Swaad Sujhaav — *Har mann ki mithai, ek sujhaav door*
 
 A festive mithai shop for **Muzaffarnagar** with a talking Punjabi halwai mascot, **Paaji**,
 a free local machine-learning recommendation engine, and a shop designed around one idea:
@@ -26,7 +26,7 @@ a free local machine-learning recommendation engine, and a shop designed around 
 | 📝 **Taste Quiz** | 5 playful questions after sign-up; Paaji reacts to each answer. |
 | 😊 **Mood picker** | Celebrating / Feeling light / Guests coming / Late-night craving re-ranks the home page. |
 | 🎙️ **Voice search & commands** | "Paaji, do kilo kaju katli daal do" → added to cart. |
-| 🪔 **Diwali everything** | Live countdown to Lakshmi Puja (8 Nov 2026, 5:30 PM), Diwali Night theme (auto near Diwali evenings), toran, diya cursor trail, fireworks on order. |
+| 🪔 **Deepawali everything** | Live countdown to Lakshmi Puja (8 Nov 2026, 5:30 PM), Deepawali Night theme (auto near Deepawali evenings), toran, diya cursor trail, fireworks on order. |
 | 🛠️ **Admin panel** | Dashboard, live orders, inventory & stock per weight, catalog editor with photo upload, **CSV import**, customers & their taste choices, Paaji lines & shayari editor, one-click model retraining. |
 
 Plus: 242 sweets (174 Indian, 68 world) with real photos (Wikimedia Commons, credited), Hindi/English
@@ -144,7 +144,7 @@ Paaji looks at every sweet in four ways and mixes the scores:
 
 ```
 score = 0.40 × your taste   + 0.25 × people like you
-      + 0.15 × popularity   + 0.10 × new arrival   + 0.10 × occasion (Diwali season)
+      + 0.15 × popularity   + 0.10 × new arrival   + 0.10 × occasion (Deepawali season)
 ```
 
 Rules on top: never suggest what's already in your cart, **always respect diet choices** (a sugar-free
@@ -164,5 +164,5 @@ pick. Weights live in one place (`backend/swaad_sujhav/ml.py` and `public.reco_w
 
 ## 📜 Credits
 - Sweet photos: Wikimedia Commons contributors (licence + author shown on each sweet's page).
-- Paaji, all artwork, dialogue and shayari: original, written for Swaad Sujhav.
+- Paaji, all artwork, dialogue and shayari: original, written for Swaad Sujhaav.
 - Voice: ElevenLabs (optional) / Web Speech API. Embeddings: `all-MiniLM-L6-v2`.

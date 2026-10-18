@@ -1,4 +1,4 @@
-# 🎬 Swaad Sujhav — 3-minute demo
+# 🎬 Swaad Sujhaav — 3-minute demo
 
 Start the backend (`backend/.venv/Scripts/python backend/app.py`) and open http://localhost:8130.
 Sound on. Demo accounts: `…demo@swaadsujhav.test` / `SwaadDemo#2026`.
@@ -6,9 +6,9 @@ Sound on. Demo accounts: `…demo@swaadsujhav.test` / `SwaadDemo#2026`.
 | Time | Do this | What the audience sees |
 |---|---|---|
 | **0:00** | Click **Andar Aao 🪔** | Diya flares, curtains open, Paaji waves and *speaks*: "Jai Shree Ram ji! Muzaffarnagar di sabton mithi dukaan vich swagat hai." |
-| 0:15 | Point at the hero | Toran garland, floating sweets (parallax), live countdown to Lakshmi Puja, rotating offers. Toggle 🌙 **Diwali Night**. |
+| 0:15 | Point at the hero | Toran garland, floating sweets (parallax), live countdown to Lakshmi Puja, rotating offers. Toggle 🌙 **Deepawali Night**. |
 | 0:25 | Profile → **Sign up** (any email) | Paaji dances, then the **Mithai Taste Quiz** opens. Answer 5 questions — Paaji reacts to each ("Asli meethe ke shaukeen ho!"). |
-| 0:50 | Back to Home | **Paaji's Sujhav for You** row now matches the quiz, each with a reason ("Matches your taste"). Tap the **Feeling light** mood → row re-ranks. |
+| 0:50 | Back to Home | **Paaji's Sujhaav for You** row now matches the quiz, each with a reason ("Matches your taste"). Tap the **Feeling light** mood → row re-ranks. |
 | 1:05 | Add **Rasgulla** | Sweet flies into the cart, badge bounces, sparkles. Paaji recites its shayari (Devanagari in the bubble), then: **"Ye … bhi le jao, poore Muzaffarnagar mein nayi hai!"** with a one-tap Add. |
 | 1:20 | Watch the **Trio bar** slide up | "Trio banao ji! … · 5% off unlocked" → **Add both**. Paaji: "Balle balle! 5% Mix & Save unlock ho gaya ji!" |
 | 1:35 | Click any sweet | Overview: story, ingredients, taste bars, weights with live stock, shayari, **More dishes like this** (ML), **Goes great with**, **Customers also bought**. |
