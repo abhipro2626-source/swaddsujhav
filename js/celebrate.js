@@ -6,7 +6,8 @@ import { isMuted } from './voice.js';
 
 const SHOUT_URL = 'assets/sounds/balle-balle.mp3';
 let ctx = null;
-let shout = null;
+// Preload so the shout starts the instant an order is placed.
+let shout = typeof Audio !== 'undefined' ? Object.assign(new Audio(SHOUT_URL), { preload: 'auto' }) : null;
 
 function audioCtx() {
   const AC = window.AudioContext || window.webkitAudioContext;
@@ -73,7 +74,7 @@ export function balleBalle() {
       const done = () => resolve(beatMs);
       shout.onended = done;
       shout.onerror = done;
-      setTimeout(() => shout.play().catch(done), 350);   // let the dhol kick in first
+      setTimeout(() => shout.play().catch(done), 150);   // dhol kicks in a beat first
       setTimeout(done, 5000);                             // never hold Paaji's next line for long
     } catch {
       resolve(beatMs);
