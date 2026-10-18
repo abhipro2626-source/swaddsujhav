@@ -184,7 +184,7 @@ export function say(item) {
   item.at = Date.now();
   if (item.priority === 'high') queue.length = 0;
   if (item.group) {
-    const replaces = item.group === 'add' ? ['add', 'pick'] : [item.group];
+    const replaces = item.group === 'add' ? ['add', 'praise', 'pick'] : [item.group];
     for (let i = queue.length - 1; i >= 0; i--) if (replaces.includes(queue[i].group)) queue.splice(i, 1);
   }
   queue.push(item);
@@ -228,7 +228,7 @@ const line = (trigger, vars) => pickLine(trigger, vars, override);
 
 /**
  * A freshly written line from the server (Gemini), with a Devanagari version for
- * Paaji's Hindi voice. Falls back to the built-in lines if it doesn't arrive in ~3s.
+ * Paaji's Hindi voice. Falls back to the built-in lines if it isn't ready right away.
  */
 async function fresh(moment, vars = {}, fallbackTrigger = moment) {
   if (API_BASE !== null && !override?.[fallbackTrigger]?.length) {
@@ -236,7 +236,7 @@ async function fresh(moment, vars = {}, fallbackTrigger = moment) {
       const qs = new URLSearchParams({ moment });
       for (const [k, v] of Object.entries(vars)) if (v != null && v !== '') qs.set(k, String(v));
       const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 3200);
+      const timer = setTimeout(() => ctrl.abort(), 1500);
       const res = await fetch(`${API_BASE}/api/line?${qs}`, { signal: ctrl.signal });
       clearTimeout(timer);
       if (res.ok) {
@@ -264,21 +264,22 @@ async function onAdded(e) {
   pointAt(from);
   if (rapid) {
     // Already talking about the last sweet: queue one short reaction (replaces any waiting one).
-    sayFresh('add', { sweet: sweet.name }, { mood: 'point', hold: 300, group: 'add', ttl: 8000 });
+    sayFresh('add', { sweet: sweet.name, sweet_hi: sweet.name_hi }, { mood: 'point', hold: 300, group: 'add', ttl: 8000 });
   } else {
     let sh = null;
     try { sh = await shayariFor(sweet); } catch { /* offline: skip the shayari */ }
     if (mySeq !== addSeq) return;
-    const praise = await fresh('add', { sweet: sweet.name });
+    const praise = await fresh('add', { sweet: sweet.name, sweet_hi: sweet.name_hi });
     if (mySeq !== addSeq) return;
     if (sh) {
-      // Shayari + fresh praise as ONE line, so it flows as a single smooth delivery.
-      const roman = sh.text_roman.replace(/\n/g, ', ');
+      // Shayari first, then the fresh praise as its own short clip: Paaji starts speaking
+      // sooner, and the praise is voiced in the background while the shayari plays.
       say({
-        text: `${roman}. ${praise.text}`, speakText: `${sh.text_hi.replace(/\n/g, ', ')}। ${praise.speakText}`,
-        display: sh.text_hi, shayari: true, mood: 'talk', hold: 400, group: 'add', ttl: 12000,
-        extra: html`<p class="bubble__roman">${sh.text_roman}</p><p class="bubble__en muted">${sh.text_en}</p><p class="bubble__praise">${praise.text}</p>`,
+        text: sh.text_roman.replace(/\n/g, ', '), speakText: sh.text_hi.replace(/\n/g, ', '),
+        display: sh.text_hi, shayari: true, mood: 'talk', hold: 250, group: 'add', ttl: 12000,
+        extra: html`<p class="bubble__roman">${sh.text_roman}</p><p class="bubble__en muted">${sh.text_en}</p>`,
       });
+      say({ text: praise.text, speakText: praise.speakText, mood: 'wave', hold: 300, group: 'praise', ttl: 12000 });
     } else {
       say({ text: praise.text, speakText: praise.speakText, mood: 'wave', hold: 300, group: 'add', ttl: 8000 });
     }
@@ -289,7 +290,7 @@ async function onAdded(e) {
     const pick = await pickAfterAdd(sweet);
     if (!pick || mySeq !== addSeq) return;
     const fixed = PAIRS.find(([a, b]) => a === sweet.name && b === pick.sweet.name);
-    const vars = { sweet: pick.sweet.name, added: sweet.name };
+    const vars = { sweet: pick.sweet.name, added: sweet.name, sweet_hi: pick.sweet.name_hi, added_hi: sweet.name_hi };
     const moment = pick.kind === 'new' ? 'upsell_new' : pick.kind === 'together' ? 'upsell_pair' : 'upsell_similar';
     const l = fixed && pick.kind !== 'new' && Math.random() < 0.3 ? { text: fixed[2], speakText: fixed[2] } : await fresh(moment, vars);
     if (mySeq !== addSeq) return;

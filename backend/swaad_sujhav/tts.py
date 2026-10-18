@@ -34,8 +34,8 @@ from . import gemini
 PROVIDER = os.getenv("TTS_PROVIDER", "edge").strip().lower()
 
 EDGE_VOICE = os.getenv("EDGE_VOICE", "hi-IN-MadhurNeural").strip()
-# Warm halwai delivery: a touch slower and deeper than default.
-EDGE_RATE = os.getenv("EDGE_RATE", "-6%").strip()
+# Lively halwai delivery: a touch quicker and deeper than default.
+EDGE_RATE = os.getenv("EDGE_RATE", "+6%").strip()
 EDGE_PITCH = os.getenv("EDGE_PITCH", "-4Hz").strip()
 try:
     import edge_tts  # free Microsoft neural voices (no key)
@@ -120,7 +120,7 @@ def _rest(provider: str, seconds: float) -> None:
 # ---------------------------------------------------------------- providers
 async def _edge(client: httpx.AsyncClient, text: str) -> bytes:
     """Madhur via Microsoft's free neural voice service. Hindi reads best in Devanagari."""
-    spoken = await gemini.to_devanagari(client, text)
+    spoken = text if _mostly_devanagari(text) else await gemini.to_devanagari(client, text)
     try:
         comm = edge_tts.Communicate(spoken, EDGE_VOICE, rate=EDGE_RATE, pitch=EDGE_PITCH)
         audio = bytearray()
@@ -245,3 +245,43 @@ async def synthesize(text: str, client: httpx.AsyncClient) -> tuple[bytes, str]:
         _cache_path(p, text).write_bytes(audio)
         return audio, MIME[p]
     raise last or TTSError(503, "No voice available right now")
+
+
+def _mostly_devanagari(text: str) -> bool:
+    letters = [c for c in text if c.isalpha()]
+    deva = sum(1 for c in letters if "\u0900" <= c <= "\u097f")
+    return bool(letters) and deva / len(letters) >= 0.6
+
+
+def cached(text: str) -> tuple[bytes, str] | None:
+    """Audio already made for this line by any provider, else None."""
+    text = " ".join(text.split())[:MAX_CHARS]
+    for p in _providers():
+        path = _cache_path(p, text)
+        if path.exists():
+            return path.read_bytes(), MIME[p]
+    return None
+
+
+def can_stream() -> bool:
+    return "edge" in _providers() and time.time() >= _off_until["edge"]
+
+
+async def stream(text: str, client: httpx.AsyncClient):
+    """Yield Madhur's MP3 as it is generated (first sound in well under a second) and
+    cache the whole clip when done. Lines already in Devanagari skip the conversion step."""
+    text = " ".join(text.split())[:MAX_CHARS]
+    spoken = text if _mostly_devanagari(text) else await gemini.to_devanagari(client, text)
+    audio = bytearray()
+    comm = edge_tts.Communicate(spoken, EDGE_VOICE, rate=EDGE_RATE, pitch=EDGE_PITCH)
+    async for chunk in comm.stream():
+        if chunk.get("type") == "audio":
+            audio.extend(chunk["data"])
+            yield chunk["data"]
+    if audio:
+        CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        path = _cache_path("edge", text)
+        tmp = path.with_suffix(".part")
+        tmp.write_bytes(bytes(audio))
+        tmp.replace(path)
+

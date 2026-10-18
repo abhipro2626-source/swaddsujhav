@@ -69,8 +69,14 @@ const cleanText = (text) => String(text).replace(/[✨🪔🎉❤️💛🍬🤝
 /** Start downloading a line's audio early so the next line follows without a gap. */
 export function prefetch(text) {
   const clean = cleanText(text || '');
-  if (clean && premium && !isMuted()) fetchAudio(clean).catch(() => {});
+  if (!clean || !premium || isMuted() || warmed.has(clean)) return;
+  warmed.add(clean);
+  if (warmed.size > 200) warmed.delete(warmed.values().next().value);
+  // Ask the server to make (and cache) the clip now, so playing it later is instant.
+  fetch(streamUrl(clean)).then((r) => r.arrayBuffer()).catch(() => warmed.delete(clean));
 }
+const warmed = new Set();
+const streamUrl = (text) => `${API_BASE}/api/tts/stream?text=${encodeURIComponent(text)}`;
 
 /** Roughly how long a line takes to read aloud (used when muted, for the mouth). */
 export const estimateMs = (text) => Math.min(9000, 900 + String(text).length * 55);
@@ -173,7 +179,8 @@ function fetchAudio(text) {
 }
 
 async function playPremium(text, myGen, { onStart, onEnd }) {
-  const url = await fetchAudio(text);
+  // Streamed: Paaji starts talking while the rest of the line is still being voiced.
+  const url = audioCache.has(text) ? await fetchAudio(text) : streamUrl(text);
   if (myGen !== gen) { onEnd?.(); return; }          // cancelled while downloading: stay silent
   if (audioEl && !audioEl.paused) audioEl.pause();   // safety: only one clip at a time
   const el = new Audio(url);

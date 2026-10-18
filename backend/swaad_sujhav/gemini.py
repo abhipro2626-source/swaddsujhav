@@ -198,26 +198,46 @@ LINES_SCHEMA = {
 }
 
 
-async def fresh_lines(client: httpx.AsyncClient, moment: str, ctx: dict, n: int = 6) -> list[dict]:
-    """Return up to n fresh {"roman", "hi"} lines for a moment (Hinglish + Devanagari)."""
+SLOTS = ("sweet", "added", "name")
+
+
+def slots_for(moment: str) -> list[str]:
+    """Placeholders a moment's lines must contain, e.g. ["sweet"] for "add"."""
+    tpl = MOMENTS.get(moment, "")
+    return [k for k in SLOTS if "{" + k + "}" in tpl]
+
+
+async def fresh_lines(client: httpx.AsyncClient, moment: str, ctx: dict, n: int = 8) -> list[dict]:
+    """Return up to n fresh {"roman", "hi"} line TEMPLATES for a moment.
+
+    Names stay as placeholders ({sweet}, {added}, {name}) so one batch serves every
+    sweet and customer instantly; the caller fills them in (Devanagari names for "hi").
+    """
     if moment not in MOMENTS:
         raise ValueError("unknown moment")
-    c = {k: str(v)[:60] for k, v in (ctx or {}).items() if v not in (None, "")}
-    c.setdefault("name", "ji")
-    c["name_part"] = f" (their name is {c['name']})" if ctx.get("name") else ""
+    c = {k: str(v)[:60] for k, v in (ctx or {}).items() if v not in (None, "") and k not in SLOTS}
+    need = slots_for(moment)
+    fmt = {"sweet": "{sweet}", "added": "{added}", "name": "{name}", "n": "1", "pct": "5", "mood": "happy",
+           "name_part": "", **c}
     try:
-        situation = MOMENTS[moment].format(**{**{"sweet": "this sweet", "added": "their sweet", "n": "1", "pct": "5", "mood": "happy"}, **c})
+        situation = MOMENTS[moment].format(**fmt)
     except (KeyError, IndexError):
         situation = MOMENTS[moment]
-    prompt = (f"Situation: {situation}\nWrite {n} different things Paaji could say right now. Each: ONE short sentence (max 18 words), "
+    slot_rule = ("Write the placeholders " + ", ".join("{" + k + "}" for k in need) +
+                 " exactly as written (curly braces, English) wherever that name goes, in BOTH 'roman' and 'hi'. "
+                 "Never write a real sweet or person name instead. ") if need else ""
+    prompt = (f"Situation: {situation}\nWrite {n} different things Paaji could say right now. Each: ONE short sentence (max 16 words), "
               "fresh and varied (different openings, different jokes/warmth), natural spoken Hinglish with a light Punjabi touch. "
-              "Mention the sweet's exact name when one is given. No hashtags, no emojis, no quotes from songs/films. "
+              + slot_rule +
+              "No hashtags, no emojis, no quotes from songs/films. "
               "For each line give 'roman' (Hinglish in Roman script) and 'hi' (the same line in Devanagari for a Hindi voice).")
-    raw = await _generate(client, [{"role": "user", "parts": [{"text": prompt}]}], PERSONA, LINES_SCHEMA, timeout=15.0,
+    raw = await _generate(client, [{"role": "user", "parts": [{"text": prompt}]}], PERSONA, LINES_SCHEMA, timeout=20.0,
                           models=[*FAST_MODELS, MODEL])
     out = []
     for line in (json.loads(raw).get("lines") or [])[:n]:
         roman = str(line.get("roman", "")).strip().strip('"')[:220]
-        if roman:
-            out.append({"roman": roman, "hi": str(line.get("hi", "")).strip().strip('"')[:260] or roman})
+        hi = str(line.get("hi", "")).strip().strip('"')[:260] or roman
+        if not roman or any("{" + k + "}" not in roman or "{" + k + "}" not in hi for k in need):
+            continue                                   # a line that dropped its placeholder is useless
+        out.append({"roman": roman, "hi": hi})
     return out

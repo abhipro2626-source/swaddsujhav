@@ -13,7 +13,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
-from collections import OrderedDict
 from contextlib import asynccontextmanager
 
 import uvicorn
@@ -72,8 +71,10 @@ async def scheduler():
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     task = asyncio.create_task(scheduler())
+    warm = asyncio.create_task(warm_lines())       # stock Paaji's fresh lines before anyone asks
     yield
     task.cancel()
+    warm.cancel()
     await db.close()
 
 
@@ -154,16 +155,70 @@ async def tts_status():
     return {"enabled": tts.enabled(), "voice": tts.active_voice()}
 
 
-# Fresh Paaji lines: per-situation pools, refilled with one Gemini request (6 lines).
-_line_pools: "OrderedDict[str, list]" = OrderedDict()
-_pool_locks: dict = {}
+# Fresh Paaji lines: per-situation pools of Gemini-written templates ({sweet}, {name}...),
+# kept topped up in the background so a line is always ready instantly.
+_line_pools: dict[str, list] = {}
+_refilling: set = set()
+POOL_LOW = 3
+WARM = [("welcome", {}), ("return", {}), ("add", {}), ("upsell_new", {}), ("upsell_pair", {}), ("upsell_similar", {}),
+        ("cart_idle", {}), ("order", {}), ("removed", {}), ("quiz_done", {}), ("cart_open", {}),
+        ("mix_nudge", {"n": "1", "pct": "5"}), ("mix_nudge", {"n": "2", "pct": "5"}), ("mix_nudge", {"n": "1", "pct": "10"}),
+        ("mix_nudge", {"n": "2", "pct": "10"}), ("mix_unlocked", {"pct": "5"}), ("mix_unlocked", {"pct": "10"})]
+
+
+def _pool_key(moment: str, ctx: dict) -> str:
+    return "|".join([moment] + [str(ctx.get(k) or "") for k in ("n", "pct", "mood")]).lower()
+
+
+async def _refill(moment: str, ctx: dict) -> None:
+    """Fetch a new batch for one pool (one Gemini request); pre-voice lines that have no names."""
+    from swaad_sujhav import gemini
+    key = _pool_key(moment, ctx)
+    if key in _refilling:
+        return
+    _refilling.add(key)
+    try:
+        lines = await gemini.fresh_lines(db.client(), moment, ctx)
+        if lines:
+            _line_pools.setdefault(key, []).extend(lines)
+            if not gemini.slots_for(moment):        # fixed text: get the voice ready ahead of time too
+                asyncio.create_task(_prevoice([ln["hi"] for ln in lines[:3]]))
+    except Exception as err:  # noqa: BLE001
+        log.info("fresh line refill failed (%s): %s", moment, err)
+    finally:
+        _refilling.discard(key)
+
+
+async def _prevoice(texts: list[str]) -> None:
+    for t in texts:
+        try:
+            await tts.synthesize(t, db.client())
+        except Exception:  # noqa: BLE001
+            return
+
+
+async def warm_lines() -> None:
+    """Stock every common moment at startup so the first customer already gets fresh lines."""
+    from swaad_sujhav import gemini
+    if not gemini.enabled():
+        return
+    for moment, ctx in WARM:
+        await _refill(moment, ctx)
+
+
+def _fill(text: str, values: dict) -> str:
+    for k, v in values.items():
+        text = text.replace("{" + k + "}", v)
+    return text
 
 
 @app.get("/api/line")
 async def paaji_line(request: Request, moment: str, sweet: str | None = None, added: str | None = None,
-                     name: str | None = None, n: str | None = None, pct: str | None = None, mood: str | None = None):
-    """A freshly written line for one of Paaji's moments (welcome, add, upsell…).
-    Returns {"text", "hi"}; 503 when Gemini is off so the browser uses its own lines."""
+                     name: str | None = None, sweet_hi: str | None = None, added_hi: str | None = None,
+                     n: str | None = None, pct: str | None = None, mood: str | None = None):
+    """A freshly written line for one of Paaji's moments (welcome, add, upsell...).
+    Answers instantly from a ready pool; 503 while a pool is still being written (the
+    browser then uses its own line), so Paaji never waits on Gemini."""
     from swaad_sujhav import gemini
     if moment not in gemini.MOMENTS:
         raise HTTPException(400, "Unknown moment")
@@ -172,28 +227,20 @@ async def paaji_line(request: Request, moment: str, sweet: str | None = None, ad
     ip = request.client.host if request.client else "?"
     if not tts.allowed(f"line:{ip}", per_minute=40):
         raise HTTPException(429, "Too many lines")
-    ctx = {"sweet": sweet, "added": added, "name": name, "n": n, "pct": pct, "mood": mood}
-    key = "|".join([moment] + [str(ctx[k] or "") for k in ("sweet", "added", "name", "n", "pct", "mood")]).lower()
-    pool = _line_pools.get(key)
+    ctx = {"n": n, "pct": pct, "mood": mood}
+    key = _pool_key(moment, ctx)
+    pool = _line_pools.get(key) or []
+    if len(pool) <= POOL_LOW and len(_line_pools) < 400:
+        asyncio.create_task(_refill(moment, ctx))
     if not pool:
-        lock = _pool_locks.setdefault(key, asyncio.Lock())
-        async with lock:
-            pool = _line_pools.get(key)
-            if not pool:
-                try:
-                    pool = await gemini.fresh_lines(db.client(), moment, ctx)
-                except Exception as err:  # noqa: BLE001
-                    log.info("fresh line fallback (%s): %s", moment, err)
-                    raise HTTPException(503, "No fresh line right now") from err
-                if not pool:
-                    raise HTTPException(503, "No fresh line right now")
-                _line_pools[key] = pool
-                while len(_line_pools) > 600:
-                    old, _ = _line_pools.popitem(last=False)
-                    _pool_locks.pop(old, None)
-    _line_pools.move_to_end(key)
+        raise HTTPException(503, "Paaji is still thinking of new lines")
     line = pool.pop(0)
-    return {"text": line["roman"], "hi": line["hi"]}
+
+    def clip(v: str | None) -> str:
+        return (v or "").strip()[:60]
+    roman = {"sweet": clip(sweet) or "ye mithai", "added": clip(added) or "aapki mithai", "name": clip(name) or "ji"}
+    hindi = {"sweet": clip(sweet_hi) or roman["sweet"], "added": clip(added_hi) or roman["added"], "name": roman["name"]}
+    return {"text": _fill(line["roman"], roman), "hi": _fill(line["hi"], hindi)}
 
 
 @app.post("/api/chat")
@@ -231,6 +278,37 @@ async def chat(request: Request, payload: dict = Body(...), authorization: str |
     top = m.sweets[m.idx[picks[0]]]
     return {"reply": out["reply"], "reply_hi": out["reply_hi"], "items": items, "filters": base["filters"],
             "go": {"type": "sweet", "slug": ask._slug(top["name"])}, "engine": "gemini"}
+
+
+@app.get("/api/tts/stream")
+async def tts_stream(request: Request, text: str = Query(..., max_length=1200)):
+    """Paaji's voice, streamed: playback starts while the rest of the line is still being
+    spoken by the TTS service. Cached lines come straight from disk."""
+    from fastapi.responses import StreamingResponse
+    headers = {"Cache-Control": "public, max-age=604800"}
+    hit = tts.cached(text)
+    if hit:
+        return Response(hit[0], media_type=hit[1], headers=headers)
+    ip = request.client.host if request.client else "?"
+    if not tts.allowed(ip):
+        raise HTTPException(429, "Too many voice requests, ji. Thoda ruk jao.")
+    if not tts.can_stream():                       # Madhur unavailable: whole clip from a backup voice
+        try:
+            audio, mime = await tts.synthesize(text, db.client())
+        except tts.TTSError as err:
+            raise HTTPException(err.status, str(err)) from err
+        return Response(audio, media_type=mime, headers=headers)
+    gen = tts.stream(text, db.client())
+    try:
+        first = await gen.__anext__()               # fail fast (before headers) if the voice is down
+    except Exception as err:  # noqa: BLE001
+        raise HTTPException(502, "Voice unavailable") from err
+
+    async def body():
+        yield first
+        async for chunk in gen:
+            yield chunk
+    return StreamingResponse(body(), media_type="audio/mpeg", headers=headers)
 
 
 @app.post("/api/tts")
