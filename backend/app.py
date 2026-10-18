@@ -13,6 +13,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+from collections import OrderedDict
 from contextlib import asynccontextmanager
 
 import uvicorn
@@ -153,6 +154,48 @@ async def tts_status():
     return {"enabled": tts.enabled(), "voice": tts.active_voice()}
 
 
+# Fresh Paaji lines: per-situation pools, refilled with one Gemini request (6 lines).
+_line_pools: "OrderedDict[str, list]" = OrderedDict()
+_pool_locks: dict = {}
+
+
+@app.get("/api/line")
+async def paaji_line(request: Request, moment: str, sweet: str | None = None, added: str | None = None,
+                     name: str | None = None, n: str | None = None, pct: str | None = None, mood: str | None = None):
+    """A freshly written line for one of Paaji's moments (welcome, add, upsell…).
+    Returns {"text", "hi"}; 503 when Gemini is off so the browser uses its own lines."""
+    from swaad_sujhav import gemini
+    if moment not in gemini.MOMENTS:
+        raise HTTPException(400, "Unknown moment")
+    if not gemini.enabled():
+        raise HTTPException(503, "Fresh lines are not configured")
+    ip = request.client.host if request.client else "?"
+    if not tts.allowed(f"line:{ip}", per_minute=40):
+        raise HTTPException(429, "Too many lines")
+    ctx = {"sweet": sweet, "added": added, "name": name, "n": n, "pct": pct, "mood": mood}
+    key = "|".join([moment] + [str(ctx[k] or "") for k in ("sweet", "added", "name", "n", "pct", "mood")]).lower()
+    pool = _line_pools.get(key)
+    if not pool:
+        lock = _pool_locks.setdefault(key, asyncio.Lock())
+        async with lock:
+            pool = _line_pools.get(key)
+            if not pool:
+                try:
+                    pool = await gemini.fresh_lines(db.client(), moment, ctx)
+                except Exception as err:  # noqa: BLE001
+                    log.info("fresh line fallback (%s): %s", moment, err)
+                    raise HTTPException(503, "No fresh line right now") from err
+                if not pool:
+                    raise HTTPException(503, "No fresh line right now")
+                _line_pools[key] = pool
+                while len(_line_pools) > 600:
+                    old, _ = _line_pools.popitem(last=False)
+                    _pool_locks.pop(old, None)
+    _line_pools.move_to_end(key)
+    line = pool.pop(0)
+    return {"text": line["roman"], "hi": line["hi"]}
+
+
 @app.post("/api/chat")
 async def chat(request: Request, payload: dict = Body(...), authorization: str | None = Header(default=None)):
     """Talk to Paaji. Our ML retrieves real candidate sweets; Gemini (if configured)
@@ -197,10 +240,10 @@ async def tts_speak(request: Request, payload: dict = Body(...)):
     if not tts.allowed(ip):
         raise HTTPException(429, "Too many voice requests, ji. Thoda ruk jao.")
     try:
-        audio = await tts.synthesize(str(payload.get("text", "")), db.client())
+        audio, mime = await tts.synthesize(str(payload.get("text", "")), db.client())
     except tts.TTSError as err:
         raise HTTPException(err.status, str(err)) from err
-    return Response(audio, media_type="audio/mpeg", headers={"Cache-Control": "public, max-age=604800"})
+    return Response(audio, media_type=mime, headers={"Cache-Control": "public, max-age=604800"})
 
 
 class NoCacheStatic(StaticFiles):

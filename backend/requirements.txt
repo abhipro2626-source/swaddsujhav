@@ -9,3 +9,4 @@ numpy>=2.0
 scipy>=1.13
 scikit-learn>=1.5
 sentence-transformers>=3.0   # pulls in torch; the engine falls back to TF-IDF if it's missing
+edge-tts>=7.0          # Paaji's voice: Microsoft 'Madhur' (free, no key)

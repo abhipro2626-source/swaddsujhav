@@ -147,7 +147,7 @@ function fetchAudio(text) {
   if (audioCache.has(text)) return audioCache.get(text);
   const p = (async () => {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 12000);
+    const timer = setTimeout(() => ctrl.abort(), 30000);   // first-time Gemini voice lines can take ~5–10s
     try {
       const res = await fetch(`${API_BASE}/api/tts`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },

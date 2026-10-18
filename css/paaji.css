@@ -173,3 +173,22 @@ body.has-modal .paaji-root, body.has-drawer .paaji-root { z-index: calc(var(--z-
 .ask__input .btn { min-height: 52px; }
 .ask__note { font-size: 11px; margin: 0; }
 .ask-modal .ask__examples .chip { cursor: pointer; }
+
+/* Order placed: Paaji stands up big and dances, with a "Balle Balle!" burst */
+.paaji-root.is-party { z-index: 9999; }
+.paaji-root.is-party .paaji__figure { transform: scale(1.35); transform-origin: bottom left; transition: transform .4s cubic-bezier(.3,1.6,.5,1); }
+.paaji-root .paaji__figure { transition: transform .5s ease; }
+.paaji-root.is-party::before {
+  content: "Balle Balle!";
+  position: absolute; left: 30px; bottom: calc(100% + 40px);
+  font-family: 'Yatra One', cursive; font-size: 1.9rem; color: var(--gold, #f5b301);
+  text-shadow: 0 2px 0 #7a1f00, 0 0 18px rgba(255,180,0,.6);
+  white-space: nowrap; pointer-events: none;
+  background: #7a1f00; padding: .15em .6em; border-radius: 999px; box-shadow: 0 6px 20px rgba(0,0,0,.25);
+  animation: pj-balle 900ms ease-in-out infinite alternate;
+}
+@keyframes pj-balle { from { transform: rotate(-6deg) scale(1); } to { transform: rotate(6deg) scale(1.12); } }
+@media (prefers-reduced-motion: reduce) {
+  .paaji-root.is-party .paaji__figure { transform: none; }
+  .paaji-root.is-party::before { animation: none; }
+}

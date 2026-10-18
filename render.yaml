@@ -28,9 +28,13 @@ services:
       - key: GEMINI_API_KEY             # secret: paste in the Render dashboard
         sync: false
       - key: GEMINI_MODEL
-        value: gemini-2.5-flash
+        value: gemini-3.1-flash-lite
       - key: TTS_PROVIDER
-        value: azure                    # Azure Arjun first, ElevenLabs George as backup
+        value: edge                     # Microsoft "Madhur" (free, no key); Gemini Orus as backup
+      - key: EDGE_VOICE
+        value: hi-IN-MadhurNeural
+      - key: GEMINI_TTS_VOICE
+        value: Orus
       - key: AZURE_SPEECH_KEY           # secret: paste in the Render dashboard
         sync: false
       - key: AZURE_SPEECH_REGION

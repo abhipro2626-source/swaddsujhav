@@ -10,6 +10,8 @@ import { shayariFor, getById, loadCatalog } from './catalog.js';
 import { count, sweetIdsInCart } from './cart.js';
 import { mixSave } from './deals.js';
 import { supabase } from './supabase.js';
+import { API_BASE } from './config.js';
+import { balleBalle } from './celebrate.js';
 
 const STATES = ['idle', 'wave', 'talk', 'point', 'celebrate', 'think', 'dance'];
 let root, figure, bubble, bubbleText, bubbleExtra, liveRegion, muteBtn;
@@ -224,6 +226,33 @@ function stopTalking() {
 
 const line = (trigger, vars) => pickLine(trigger, vars, override);
 
+/**
+ * A freshly written line from the server (Gemini), with a Devanagari version for
+ * Paaji's Hindi voice. Falls back to the built-in lines if it doesn't arrive in ~3s.
+ */
+async function fresh(moment, vars = {}, fallbackTrigger = moment) {
+  if (API_BASE !== null && !override?.[fallbackTrigger]?.length) {
+    try {
+      const qs = new URLSearchParams({ moment });
+      for (const [k, v] of Object.entries(vars)) if (v != null && v !== '') qs.set(k, String(v));
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 3200);
+      const res = await fetch(`${API_BASE}/api/line?${qs}`, { signal: ctrl.signal });
+      clearTimeout(timer);
+      if (res.ok) {
+        const d = await res.json();
+        if (d.text) return { text: d.text, speakText: d.hi || d.text };
+      }
+    } catch { /* offline / slow → built-in line */ }
+  }
+  const t = line(fallbackTrigger, vars);
+  return { text: t, speakText: t };
+}
+async function sayFresh(moment, vars, opts = {}, fallbackTrigger = moment) {
+  const l = await fresh(moment, vars, fallbackTrigger);
+  if (l.text) say({ ...opts, text: l.text, speakText: l.speakText });
+}
+
 // ------------------------------------------------------------------ reactions
 let addSeq = 0;
 async function onAdded(e) {
@@ -235,22 +264,23 @@ async function onAdded(e) {
   pointAt(from);
   if (rapid) {
     // Already talking about the last sweet: queue one short reaction (replaces any waiting one).
-    say({ text: `${sweet.name}? ${line('add')}`, mood: 'point', hold: 300, group: 'add', ttl: 8000 });
+    sayFresh('add', { sweet: sweet.name }, { mood: 'point', hold: 300, group: 'add', ttl: 8000 });
   } else {
     let sh = null;
     try { sh = await shayariFor(sweet); } catch { /* offline: skip the shayari */ }
     if (mySeq !== addSeq) return;
-    const praise = line('add');
+    const praise = await fresh('add', { sweet: sweet.name });
+    if (mySeq !== addSeq) return;
     if (sh) {
-      // Shayari + praise as ONE line, so it flows as a single smooth delivery.
+      // Shayari + fresh praise as ONE line, so it flows as a single smooth delivery.
       const roman = sh.text_roman.replace(/\n/g, ', ');
       say({
-        text: `${roman}. ${praise}`, speakText: `${roman}... ${praise}`,
+        text: `${roman}. ${praise.text}`, speakText: `${sh.text_hi.replace(/\n/g, ', ')}। ${praise.speakText}`,
         display: sh.text_hi, shayari: true, mood: 'talk', hold: 400, group: 'add', ttl: 12000,
-        extra: html`<p class="bubble__roman">${sh.text_roman}</p><p class="bubble__en muted">${sh.text_en}</p>`,
+        extra: html`<p class="bubble__roman">${sh.text_roman}</p><p class="bubble__en muted">${sh.text_en}</p><p class="bubble__praise">${praise.text}</p>`,
       });
     } else {
-      say({ text: praise, mood: 'wave', hold: 300, group: 'add', ttl: 8000 });
+      say({ text: praise.text, speakText: praise.speakText, mood: 'wave', hold: 300, group: 'add', ttl: 8000 });
     }
   }
   // Then suggest something: a new arrival if possible ("poore Muzaffarnagar mein nayi hai!").
@@ -260,12 +290,13 @@ async function onAdded(e) {
     if (!pick || mySeq !== addSeq) return;
     const fixed = PAIRS.find(([a, b]) => a === sweet.name && b === pick.sweet.name);
     const vars = { sweet: pick.sweet.name, added: sweet.name };
-    const text = fixed && pick.kind !== 'new' ? fixed[2]
-      : pick.kind === 'new' ? line('upsell_new', vars)
-      : pick.kind === 'together' ? line('upsell_pair', vars) : line('upsell_similar', vars);
+    const moment = pick.kind === 'new' ? 'upsell_new' : pick.kind === 'together' ? 'upsell_pair' : 'upsell_similar';
+    const l = fixed && pick.kind !== 'new' && Math.random() < 0.3 ? { text: fixed[2], speakText: fixed[2] } : await fresh(moment, vars);
+    if (mySeq !== addSeq) return;
+    const text = l.text;
     highlight(pick.sweet.id);
     say({
-      text, mood: 'point', hold: 600, group: 'pick', ttl: 20000,
+      text, speakText: l.speakText, mood: 'point', hold: 600, group: 'pick', ttl: 20000,
       extra: html`<a class="bubble__pick" href="#/sweet/${pick.sweet.slug}" data-open="${pick.sweet.slug}">
           ${pick.sweet.image_url ? html`<img src="${pick.sweet.image_url.replace(/\/(\d+)px-/, '/330px-')}" alt="" referrerpolicy="no-referrer">` : ''}
           <span>${pick.sweet.name}${pick.kind === 'new' ? raw(' <b class="tag tag--new">New</b>') : ''}</span></a>
@@ -280,9 +311,9 @@ async function onAdded(e) {
   const deal = mixSave(distinct);
   const prev = mixSave(distinct - 1);
   if (deal.percent > prev.percent) {
-    say({ text: line('mix_unlocked', { pct: deal.percent }), mood: 'celebrate', group: 'nudge', ttl: 15000 });
+    sayFresh('mix_unlocked', { pct: deal.percent }, { mood: 'celebrate', group: 'nudge', ttl: 15000 });
   } else if (deal.next && deal.next.needed <= 2) {
-    say({ text: line('mix_nudge', { n: deal.next.needed, pct: deal.next.percent }), mood: 'point', group: 'nudge', ttl: 15000 });
+    sayFresh('mix_nudge', { n: deal.next.needed, pct: deal.next.percent }, { mood: 'point', group: 'nudge', ttl: 15000 });
   }
 }
 
@@ -311,7 +342,7 @@ function pointAt(el) {
 function greet() {
   const name = store.get('user') ? firstName() : '';
   setState('wave', 2600);
-  say({ text: name ? line('return', { name }) : line('welcome'), mood: 'wave', priority: 'high' });
+  sayFresh(name ? 'return' : 'welcome', name ? { name } : {}, { mood: 'wave', priority: 'high' });
 }
 
 function resetIdle() {
@@ -329,7 +360,7 @@ function resetIdle() {
       const drawerOpen = document.getElementById('cart-drawer')?.classList.contains('is-open');
       if (!drawerOpen && !busy && Date.now() - cartIdleSaid > 5 * 60000 && document.body.dataset.route !== 'checkout') {
         cartIdleSaid = Date.now();
-        say({ text: line('cart_idle'), mood: 'point', extra: html`<button type="button" class="btn btn--gold btn--sm" data-open-cart>Thaali dekho</button>` });
+        sayFresh('cart_idle', {}, { mood: 'point', extra: html`<button type="button" class="btn btn--gold btn--sm" data-open-cart>Thaali dekho</button>` });
       }
     }, 60000);
   }
@@ -431,13 +462,23 @@ export function initPaaji() {
     if (text) say({ text, speakText: d.speakText, mood: d.mood || 'talk', priority: d.priority || 'normal', extra: d.extra, group: d.group });
   });
   document.addEventListener('ss:added', onAdded);
-  document.addEventListener('ss:removed', () => { if (Math.random() < 0.4) say({ text: line('removed'), mood: 'think' }); });
-  document.addEventListener('ss:login', () => setTimeout(() => say({ text: line('return', { name: firstName() }), mood: 'wave', priority: 'high' }), 400));
+  document.addEventListener('ss:removed', () => { if (Math.random() < 0.4) sayFresh('removed', {}, { mood: 'think' }); });
+  document.addEventListener('ss:login', () => setTimeout(() => sayFresh('return', { name: firstName() }, { mood: 'wave', priority: 'high' }), 400));
   document.addEventListener('ss:celebrate', () => setState('dance', 3200));
-  document.addEventListener('ss:quiz-done', () => { setState('celebrate', 2500); say({ text: 'Bas ji! Hun meri har sujhaav tuhade swaad naal hogi.', mood: 'celebrate', priority: 'high' }); });
+  document.addEventListener('ss:quiz-done', () => { setState('celebrate', 2500); sayFresh('quiz_done', {}, { mood: 'celebrate', priority: 'high' }); });
   document.addEventListener('ss:order-placed', async (e) => {
-    setState('dance', 4200);
-    say({ text: line('order'), mood: 'dance', priority: 'high', hold: 400 });
+    // Party time: Paaji stands up big and does bhangra while the dhol + Balle Balle plays.
+    queue.length = 0;                               // nothing talks over the Balle Balle
+    cancelSpeech();
+    hideBubble();
+    root.classList.remove('is-tucked');
+    root.classList.add('is-party');
+    setState('dance', 7000);
+    const freshThanks = fresh('order');            // fetch the thank-you line while he dances
+    await Promise.all([balleBalle(), new Promise((r) => setTimeout(r, 2800))]);
+    root.classList.remove('is-party');
+    const thanks = await freshThanks;
+    say({ text: thanks.text, speakText: thanks.speakText, mood: 'dance', priority: 'high', hold: 400 });
     try {
       const sh = await shayariFor(null, 'thanks');
       if (sh) say({ text: sh.text_roman.replace(/\n/g, ', '), display: sh.text_hi, shayari: true, mood: 'celebrate',
@@ -466,7 +507,7 @@ export function initPaaji() {
 
   // Returning in the same session: greet in the bubble; voice starts after the next tap.
   if (sessionStorage.getItem('ss:entered') && !document.getElementById('entry')) {
-    setTimeout(() => say({ text: store.get('user') ? line('return', { name: firstName() }) : line('welcome'), mood: 'wave' }), 1200);
+    setTimeout(() => sayFresh(store.get('user') ? 'return' : 'welcome', store.get('user') ? { name: firstName() } : {}, { mood: 'wave' }), 1200);
   }
   return { say, setState };
 }

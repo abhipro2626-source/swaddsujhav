@@ -69,6 +69,9 @@ export const LINES = {
   signup: [
     'Wah ji wah! Parivaar vich swagat hai!',
   ],
+  quiz_done: [
+    'Bas ji! Hun meri har sujhaav tuhade swaad naal hogi.',
+  ],
   removed: [
     'Koi gal nahi ji, mann badal gaya? Undo da button haazir hai.',
   ],
