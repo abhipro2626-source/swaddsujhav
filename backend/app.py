@@ -107,7 +107,7 @@ def _model() -> ml.Model:
     return m
 
 
-@app.get("/api/health")
+@app.api_route("/api/health", methods=["GET", "HEAD"])   # HEAD too: uptime monitors use it
 async def health():
     m = state["model"]
     return {"ok": True, "model_ready": m.ready, "training": state["training"], "last_run": state["last_run"],
