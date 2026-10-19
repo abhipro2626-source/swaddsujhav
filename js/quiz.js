@@ -1,4 +1,4 @@
-// Mithai Taste Quiz — 5 quick questions that build the taste profile
+// Mithai Taste Quiz — 6 quick questions that build the taste profile
 // (solves the cold-start problem for recommendations).
 import { openModal, html, raw, toast, $, $$ } from './ui.js';
 import { updateProfile, firstName } from './auth.js';
@@ -42,6 +42,16 @@ const QUESTIONS = [
       { v: 'both', e: '🤝', l: 'Dono chalenge!' },
     ],
     react: (v) => (v === 'both' ? 'Dil bada hai tuhada ji!' : 'Theek hai ji, yaad rakhunga.'),
+  },
+  {
+    id: 'spice', type: 'single', title: 'Namkeen kaisa pasand hai?',
+    sub: 'For your mithai + namkeen combos',
+    options: [
+      { v: 'mild', e: '🙂', l: 'Halka, bina mirch' },
+      { v: 'medium', e: '😋', l: 'Thoda chatpata' },
+      { v: 'spicy', e: '🌶️', l: 'Teekha, ekdum masaledaar!' },
+    ],
+    react: (v) => (v === 'spicy' ? 'Oho, teekhe ke shaukeen! Bikaneri bhujia yaad rakhunga.' : v === 'mild' ? 'Halka namkeen — moong dal te mathri, pakka!' : 'Chatpata — sabse balanced choice ji!'),
   },
   {
     id: 'diet', type: 'multi', title: 'Koi khaas parhez?',
@@ -99,7 +109,7 @@ export function buildTasteProfile(a) {
   if (a.regions?.includes('World') && !cats.includes('world')) cats.push('world');
   return {
     sweetness: a.sweetness ?? 3, categories: cats, bases, regions,
-    prefers: a.prefers || 'both', diet, quiz_done: true, quiz_answers: a,
+    prefers: a.prefers || 'both', spice: a.spice || 'medium', diet, quiz_done: true, quiz_answers: a,
   };
 }
 

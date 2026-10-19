@@ -1,0 +1,202 @@
+/* =====================================================================
+   Feature Pack 2 — taaza badges, deals, context banner, combos, coupons,
+   scratch card, festivals, hot alerts, gift planner, Bhooli Hui Mithai,
+   owner dashboard. Built only from the existing design tokens.
+   ===================================================================== */
+
+/* ---------- cards: taaza + deal ---------- */
+.sweet-card__media { position: relative; }
+.taaza-badge, .deal-badge {
+  position: absolute; left: var(--sp-2); bottom: var(--sp-2);
+  padding: 3px 9px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 700;
+  background: var(--festive-grad); color: #fff; box-shadow: var(--shadow-sm);
+}
+.deal-badge { left: auto; right: var(--sp-2); background: var(--deep-maroon); color: var(--gold); }
+.taaza-line { margin: 0; font-size: 11.5px; font-weight: 700; color: var(--success); }
+.tag--namkeen { background: var(--deep-maroon); color: var(--gold); }
+.price__old { color: var(--fg-muted); font-size: var(--fs-sm); }
+.price__deal { color: var(--rani-pink); }
+:root[data-theme="night"] .taaza-line { color: var(--pista); }
+
+/* ---------- shared feature blocks ---------- */
+.feature-banner {
+  display: grid; gap: var(--sp-3); padding: var(--sp-4) var(--sp-5); margin: var(--sp-5) 0;
+  border-radius: var(--radius-lg); border: 1px solid var(--line); background: var(--bg-raised); box-shadow: var(--shadow-sm);
+}
+.feature-banner__head { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+.feature-banner__icon { font-size: 2rem; line-height: 1; }
+.feature-banner__title { margin: 0; font-family: var(--font-festive); font-size: var(--fs-xl); font-weight: 400; }
+.feature-banner__sub { margin: 0; color: var(--fg-muted); font-size: var(--fs-sm); }
+.feature-banner__tools { margin-left: auto; display: flex; gap: var(--sp-2); flex-wrap: wrap; align-items: center; }
+.feature-banner .row { margin: 0; }
+.context-banner { background: linear-gradient(120deg, color-mix(in srgb, var(--bg-raised) 85%, var(--marigold)), var(--bg-raised)); }
+.context-banner[data-weather="cold"] { background: linear-gradient(120deg, #E8F1FF, var(--bg-raised)); }
+.context-banner[data-weather="hot"] { background: linear-gradient(120deg, #FFE7C2, var(--bg-raised)); }
+.context-banner[data-weather="rainy"] { background: linear-gradient(120deg, #DDE9F3, var(--bg-raised)); }
+:root[data-theme="night"] .context-banner { background: var(--bg-raised); }
+.place-chip { font-size: var(--fs-xs); }
+
+.deals-strip { background: linear-gradient(120deg, var(--deep-maroon), var(--royal-purple)); color: #FFF3D6; border: 0; }
+.deals-strip .feature-banner__sub, .deals-strip .muted { color: #F3D9A4; }
+.deals-strip .row__title, .deals-strip h2 { color: #FFF3D6; }
+.deal-clock { font-variant-numeric: tabular-nums; font-weight: 700; font-size: var(--fs-lg); color: var(--gold); }
+
+.reminder-banner { background: var(--gold-grad); color: var(--on-gold); border: 0; }
+.reminder-banner .feature-banner__sub { color: var(--text); }
+
+/* ---------- combos ---------- */
+.combo-row { display: grid; gap: var(--sp-2); }
+.combo-pick {
+  display: grid; grid-template-columns: 56px 1fr auto; gap: var(--sp-3); align-items: center;
+  padding: var(--sp-2) var(--sp-3); border: 1px dashed var(--gold-deep); border-radius: var(--radius); background: var(--bg-sunken);
+}
+.combo-pick .sweet-img { width: 56px; height: 56px; border-radius: 12px; overflow: hidden; }
+.combo-pick__why { margin: 0; font-size: var(--fs-xs); color: var(--fg-muted); }
+.combo-pick__name { margin: 0; font-weight: 700; }
+.jodi-grid { display: grid; gap: var(--sp-3); grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.jodi-card { padding: var(--sp-4); border-radius: var(--radius); background: var(--bg-raised); border: 1px solid var(--line); display: grid; gap: var(--sp-2); }
+.jodi-card__emoji { font-size: 1.8rem; }
+.jodi-card h3 { margin: 0; }
+
+/* ---------- coupons ---------- */
+.coupon-box { display: grid; gap: var(--sp-2); padding: var(--sp-3); margin: var(--sp-3) 0; border-radius: var(--radius); background: var(--bg-sunken); }
+.coupon-box .field--inline { display: flex; gap: var(--sp-2); align-items: center; }
+.coupon-box input { flex: 1; min-width: 0; text-transform: uppercase; }
+.coupon-box__msg { margin: 0; color: var(--fg-muted); }
+.checkout__note { padding: var(--sp-3); border-radius: var(--radius); background: color-mix(in srgb, var(--marigold) 25%, var(--bg-raised)); font-weight: 600; }
+.coupon-list { display: grid; gap: var(--sp-2); padding: 0; list-style: none; }
+.coupon-ticket {
+  display: grid; grid-template-columns: auto 1fr auto; gap: var(--sp-3); align-items: center; padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius); border: 2px dashed var(--gold-deep); background: var(--bg-raised);
+}
+.coupon-ticket code { font-weight: 700; font-size: var(--fs-lg); letter-spacing: .08em; color: var(--deep-maroon); }
+:root[data-theme="night"] .coupon-ticket code { color: var(--gold); }
+.coupon-ticket.is-used { opacity: .55; }
+
+/* ---------- scratch card ---------- */
+.scratch { display: grid; justify-items: center; gap: var(--sp-3); margin: var(--sp-5) auto; text-align: center; }
+.scratch__card { position: relative; width: min(320px, 86vw); aspect-ratio: 16 / 10; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-glow); }
+.scratch__prize {
+  position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: var(--sp-1); padding: var(--sp-4);
+  background: radial-gradient(circle at 50% 30%, #fff8e0, #FFE08A); color: var(--text);
+}
+.scratch__prize strong { font-family: var(--font-festive); font-size: 1.6rem; font-weight: 400; line-height: 1.15; }
+.scratch__prize code { padding: 2px 10px; border-radius: var(--radius-pill); background: var(--deep-maroon); color: var(--gold); font-weight: 700; letter-spacing: .08em; }
+.scratch canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; transition: opacity .6s var(--ease); }
+.scratch canvas.is-gone { opacity: 0; pointer-events: none; }
+.scratch__hint { margin: 0; color: var(--fg-muted); font-size: var(--fs-sm); }
+
+/* ---------- hot alert ---------- */
+.hot-alert {
+  position: fixed; z-index: calc(var(--z-drawer) - 1); left: 50%; top: calc(64px + env(safe-area-inset-top)); transform: translateX(-50%);
+  width: min(560px, calc(100vw - 2 * var(--gutter))); padding: var(--sp-3) var(--sp-4); border-radius: var(--radius-lg);
+  background: linear-gradient(120deg, #FF6B1A, #E6197A); color: #fff; box-shadow: 0 12px 40px rgba(230, 25, 122, .45);
+  display: grid; grid-template-columns: auto 1fr auto; gap: var(--sp-3); align-items: center;
+  animation: hot-in .5s var(--ease-bounce);
+}
+.hot-alert__flame { font-size: 2rem; animation: flicker 1s infinite alternate; }
+.hot-alert h3 { margin: 0; font-size: var(--fs-md); }
+.hot-alert p { margin: 0; font-size: var(--fs-sm); opacity: .95; }
+.hot-alert .btn { --btn-bg: #fff; --btn-fg: var(--deep-maroon); border-color: transparent; }
+.hot-alert__x { background: transparent; border: 0; color: #fff; font-size: 1.3rem; position: absolute; top: 2px; right: 8px; }
+.hot-meter { height: 6px; border-radius: var(--radius-pill); background: rgba(255, 255, 255, .35); overflow: hidden; margin-top: 4px; }
+.hot-meter span { display: block; height: 100%; width: var(--w, 100%); background: #fff; transition: width .4s var(--ease); }
+@keyframes hot-in { from { opacity: 0; transform: translate(-50%, -16px) scale(.96); } }
+@keyframes flicker { to { transform: scale(1.12) rotate(-4deg); } }
+
+/* ---------- festivals ---------- */
+.fest-grid { display: grid; gap: var(--sp-4); grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.fest-card {
+  position: relative; display: grid; gap: var(--sp-2); padding: var(--sp-4) var(--sp-5); border-radius: var(--radius-lg);
+  background: var(--bg-raised); border: 1px solid var(--line); box-shadow: var(--shadow-sm); border-top: 6px solid var(--accent-c, var(--marigold));
+}
+.fest-card__emoji { font-size: 2.2rem; }
+.fest-card h3 { margin: 0; font-family: var(--font-festive); font-weight: 400; font-size: 1.5rem; }
+.fest-card__count { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--kesar); }
+.fest-card__actions { display: flex; gap: var(--sp-2); flex-wrap: wrap; margin-top: auto; }
+.fest-card .chip--warn { background: color-mix(in srgb, var(--marigold) 30%, var(--bg-raised)); font-size: 11px; }
+.slot-board { display: grid; gap: var(--sp-3); }
+.slot-day h4 { margin: 0 0 var(--sp-2); }
+.slot-grid .slot small { display: block; font-size: 10.5px; color: var(--fg-muted); }
+.slot.is-full { text-decoration: line-through; opacity: .5; }
+.steps-bar { display: flex; gap: var(--sp-2); flex-wrap: wrap; margin: var(--sp-3) 0 var(--sp-5); padding: 0; list-style: none; }
+.steps-bar li { padding: 4px 12px; border-radius: var(--radius-pill); background: var(--bg-sunken); font-size: var(--fs-sm); font-weight: 600; color: var(--fg-muted); }
+.steps-bar li.is-on { background: var(--gold-grad); color: var(--on-gold); }
+
+/* ---------- Bhooli Hui Mithai ---------- */
+.bhooli { display: grid; gap: var(--sp-5); }
+.bhooli__ask textarea { width: 100%; min-height: 110px; font-size: var(--fs-lg); }
+.bhooli__chips { display: grid; gap: var(--sp-2); }
+.bhooli__chips .chips { gap: var(--sp-1); }
+.bhooli__group { display: flex; gap: var(--sp-2); align-items: baseline; flex-wrap: wrap; }
+.bhooli__group > span { min-width: 92px; font-size: var(--fs-sm); color: var(--fg-muted); font-weight: 600; }
+.bhooli-q { text-align: center; padding: var(--sp-5); border-radius: var(--radius-lg); background: var(--bg-raised); border: 2px solid var(--marigold); }
+.bhooli-q h2 { font-family: var(--font-festive); font-weight: 400; }
+.bhooli-reveal { display: grid; gap: var(--sp-4); grid-template-columns: minmax(0, 1fr); padding: var(--sp-5); border-radius: var(--radius-lg); background: var(--bg-raised); box-shadow: var(--shadow-glow); }
+.bhooli-reveal__kicker { margin: 0; font-family: var(--font-festive); font-size: var(--fs-xl); color: var(--kesar); }
+.bhooli-reveal__name { margin: 0; font-family: var(--font-festive); font-weight: 400; font-size: var(--fs-hero); line-height: 1; }
+.bhooli-reveal .sweet-img { border-radius: var(--radius); overflow: hidden; max-height: 320px; }
+.confidence { height: 10px; border-radius: var(--radius-pill); background: var(--bg-sunken); overflow: hidden; }
+.confidence span { display: block; height: 100%; width: var(--w); background: var(--gold-grad); }
+.clue-chips .chip { background: var(--bg-sunken); }
+.bhooli-others { display: grid; gap: var(--sp-2); grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.mini-match { display: grid; gap: 4px; padding: var(--sp-2); border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-raised); text-align: left; }
+.mini-match .sweet-img { border-radius: 10px; overflow: hidden; aspect-ratio: 4/3; }
+@media (min-width: 768px) { .bhooli-reveal { grid-template-columns: 1fr 1.1fr; align-items: center; } }
+
+/* ---------- Gift planner ---------- */
+.planner { display: grid; gap: var(--sp-5); }
+.budget-bar { position: sticky; top: 70px; z-index: 5; display: grid; gap: var(--sp-1); padding: var(--sp-3) var(--sp-4); border-radius: var(--radius); background: var(--bg-raised); box-shadow: var(--shadow-md); }
+.budget-bar__track { height: 10px; border-radius: var(--radius-pill); background: var(--bg-sunken); overflow: hidden; }
+.budget-bar__track span { display: block; height: 100%; width: var(--w); background: var(--gold-grad); transition: width .4s var(--ease); }
+.budget-bar.is-over .budget-bar__track span { background: var(--danger); }
+.budget-bar.is-over strong { color: var(--danger); }
+.recipient-list { display: grid; gap: var(--sp-3); padding: 0; list-style: none; }
+.recipient { display: grid; gap: var(--sp-2); padding: var(--sp-4); border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg-raised); }
+.recipient__head { display: flex; gap: var(--sp-2); align-items: center; flex-wrap: wrap; }
+.recipient__head h3 { margin: 0; }
+.box-board { display: grid; gap: var(--sp-4); grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.gift-box-card { display: grid; gap: var(--sp-2); padding: var(--sp-4); border-radius: var(--radius-lg); background: var(--bg-raised); border: 1px solid var(--line); border-top: 6px solid var(--rani-pink); }
+.gift-box-card h3 { margin: 0; }
+.gift-box-card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--sp-2); }
+.gift-box-card li { display: grid; grid-template-columns: 44px 1fr auto; gap: var(--sp-2); align-items: center; }
+.gift-box-card li .sweet-img { width: 44px; height: 44px; border-radius: 10px; overflow: hidden; }
+.gift-box-card .why { margin: 0; font-size: var(--fs-xs); color: var(--success); }
+.gift-card-note { padding: var(--sp-3); border-radius: var(--radius); background: var(--bg-sunken); font-family: var(--font-hand); white-space: pre-line; }
+
+/* ---------- Owner dashboard ---------- */
+.owner { display: grid; gap: var(--sp-5); }
+.stat__delta { font-size: var(--fs-xs); font-weight: 700; }
+.stat__delta.is-up { color: var(--success); }
+.stat__delta.is-down { color: var(--danger); }
+.plan-table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+.plan-table th, .plan-table td { padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.plan-table th button { all: unset; cursor: pointer; font-weight: 700; }
+.plan-table th button:focus-visible { outline: 2px solid var(--accent); }
+.plan-table td.num, .plan-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.plan-table .make { font-weight: 800; font-size: var(--fs-md); color: var(--kesar); }
+.plan-table .why { color: var(--fg-muted); font-size: var(--fs-xs); }
+.table-wrap { overflow-x: auto; }
+.chart-box { position: relative; height: 300px; }
+.explain { font-size: var(--fs-sm); color: var(--fg-muted); }
+.explain code { background: var(--bg-sunken); padding: 2px 6px; border-radius: 6px; }
+.quick-form { display: flex; gap: var(--sp-2); flex-wrap: wrap; align-items: end; }
+.quick-form .field { min-width: 120px; flex: 1; }
+.print-view { position: fixed; inset: 0; z-index: var(--z-modal); background: #fff; color: #000; overflow: auto; padding: 24px; font-size: 18px; }
+.print-view table { width: 100%; border-collapse: collapse; }
+.print-view td, .print-view th { border-bottom: 1px solid #999; padding: 10px 8px; text-align: left; }
+.print-view .num { text-align: right; font-weight: 800; font-size: 22px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hot-alert, .hot-alert__flame { animation: none; }
+  .scratch canvas { transition: none; }
+}
+
+/* ---------- detail: deal + freshness ---------- */
+.detail-deal { margin: 0 0 var(--sp-2); padding: var(--sp-2) var(--sp-3); border-radius: var(--radius); background: var(--deep-maroon); color: var(--gold); font-size: var(--fs-sm); }
+.freshness { display: grid; gap: var(--sp-1); margin: var(--sp-3) 0; font-size: var(--fs-sm); }
+.freshness p { margin: 0; }
+.freshness__bar { height: 8px; border-radius: var(--radius-pill); background: var(--bg-sunken); overflow: hidden; }
+.freshness__bar span { display: block; height: 100%; width: var(--w); background: linear-gradient(90deg, var(--pista), var(--marigold)); }
+
+.cart-line__deal { display: block; font-size: 11px; font-weight: 700; color: var(--rani-pink); }

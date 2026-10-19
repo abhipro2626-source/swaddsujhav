@@ -10,6 +10,7 @@ import { updateProfile } from '../auth.js';
 import { openAuthModal } from '../account.js';
 import { GIFT_BOX_RULE } from '../cartDrawer.js';
 import { mixSave, discountFor, getRules, qualifiesForSample } from '../deals.js';
+import { priceCart, getCoupon, setCoupon, myCoupons, couponUsable } from '../pricing.js';
 
 const SHOP = { name: 'Swaad Sujhaav', address: 'Main Bazaar, Muzaffarnagar, Uttar Pradesh 251001', hours: '9am – 10pm' };
 const DELIVERY_SLOTS = ['10am–12pm', '12pm–3pm', '3pm–6pm', '6pm–9pm'];
@@ -35,7 +36,30 @@ function slotOpen(day, slot) {
   return startHour(slot) > new Date().getHours() + 1;
 }
 
-export async function renderCheckout(view) {
+/** Money rows from the server's price (falls back to a local estimate while loading). */
+function moneyRows(p, est, fulfilment) {
+  const sub = p ? Number(p.subtotal) : est.sub;
+  const rows = [html`<div class="summary-row"><span>Subtotal</span><span>${rupees(sub)}</span></div>`,
+    html`<div class="summary-row"><span>${fulfilment === 'delivery' ? 'Delivery' : 'Pickup'}</span><span>Free</span></div>`];
+  if (p) {
+    if (Number(p.deal_discount)) rows.push(html`<div class="summary-row summary-row--save"><span>⏰ Last-hour deals</span><span>−${rupees(p.deal_discount)}</span></div>`);
+    if (Number(p.combo_discount)) rows.push(html`<div class="summary-row summary-row--save"><span>🥨 ${(p.combos || []).map((c) => c.name).join(', ') || 'Jodi combo'}</span><span>−${rupees(p.combo_discount)}</span></div>`);
+    if (Number(p.mix_discount)) rows.push(html`<div class="summary-row summary-row--save"><span>🍬 Mix & Save (${p.distinct} sweets, ${p.mix_percent}%)</span><span>−${rupees(p.mix_discount)}</span></div>`);
+    const c = p.coupon;
+    if (c?.valid && Number(c.discount)) rows.push(html`<div class="summary-row summary-row--save"><span>🎟️ ${c.code} · ${c.message}</span><span>−${rupees(c.discount)}</span></div>`);
+    if (c?.valid && c.free_item) rows.push(html`<div class="summary-row summary-row--gift"><span>🎟️ Free ${c.free_item.weight_label} ${c.free_item.name}</span><span>Free</span></div>`);
+    if (c?.valid && c.kind === 'free_wrap' && !Number(c.discount)) rows.push(html`<div class="summary-row summary-row--gift"><span>🎟️ Free festive gift wrap</span><span>Free</span></div>`);
+  } else if (est.discount) {
+    rows.push(html`<div class="summary-row summary-row--save"><span>🍬 Mix & Save (${est.distinct} sweets, ${est.percent}%)</span><span>−${rupees(est.discount)}</span></div>`);
+  }
+  if (est.giftBox) rows.push(html`<div class="summary-row summary-row--gift"><span>🎁 Deepawali gift box</span><span>Free</span></div>`);
+  if (est.sample) rows.push(html`<div class="summary-row summary-row--gift"><span>✨ Free taste of a new arrival</span><span>Free</span></div>`);
+  rows.push(html`<div class="summary-row summary-row--total"><span>Total</span><strong>${rupees(p ? p.total : est.sub - est.discount)}</strong></div>`);
+  if (!p) rows.push(html`<p class="muted small">Checking today's deals and offers…</p>`);
+  return html`${rows}`;
+}
+
+export async function renderCheckout(view, params) {
   await loadCatalog().catch(() => null);
   if (!count()) {
     view.innerHTML = html`<div class="page container page--narrow">${raw(emptyState({ icon: '🍽️', title: 'Thaali khaali hai ji!',
@@ -61,6 +85,15 @@ export async function renderCheckout(view) {
 
   const profile = store.get('profile') || {};
   const saved = Array.isArray(profile.addresses) ? profile.addresses : [];
+  const preSlotId = Number(params?.get?.('preorder')) || null;
+  let preSlot = null;
+  if (preSlotId) {
+    const { data } = await supabase.from('preorder_slots').select('*, festival:festivals(name, emoji, cutoff_hours)').eq('id', preSlotId).maybeSingle();
+    preSlot = data;
+  }
+  let coupons = [];
+  const couponChips = () => html`${coupons.map((c) => html`<button type="button" class="chip chip--toggle ${getCoupon() === c.code ? 'is-on' : ''}" data-use-coupon="${c.code}">🎟️ ${c.code} · ${c.label}</button>`)}`;
+  myCoupons().then((c) => { coupons = c.filter(couponUsable); const el = $('#coupon-chips', view); if (el) el.innerHTML = couponChips(); }).catch(() => {});
   const days = slotDays();
   const st = {
     fulfilment: 'delivery',
@@ -71,6 +104,8 @@ export async function renderCheckout(view) {
     slot: null,
     payment: 'cod',
     gift: '',
+    price: null,
+    priceNote: '',
   };
 
   const draw = () => {
@@ -118,7 +153,12 @@ export async function renderCheckout(view) {
               </div>` : ''}` : html`<p class="pickup-note">📍 ${SHOP.address} · Open ${SHOP.hours}</p>`}
           </section>
 
-          <section class="checkout-card" aria-labelledby="step2">
+          ${preSlot ? html`<section class="checkout-card checkout-card--preorder" aria-labelledby="step2">
+            <h2 id="step2"><span class="step-num">2</span> ${preSlot.festival?.emoji || '🪔'} Pre-order slot</h2>
+            <p><strong>${preSlot.festival?.name || 'Festival'}</strong> · ${new Date(`${preSlot.slot_date}T00:00`).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })},
+              ${preSlot.start_time.slice(0, 5)}–${preSlot.end_time.slice(0, 5)}</p>
+            <p class="muted small">Made fresh for your slot. You can cancel up to ${preSlot.festival?.cutoff_hours || 12} hours before. <a href="#/festivals">Change slot</a></p>
+          </section>` : html`<section class="checkout-card" aria-labelledby="step2">
             <h2 id="step2"><span class="step-num">2</span> ${st.fulfilment === 'delivery' ? 'Delivery' : 'Pickup'} time</h2>
             <div class="chips" role="radiogroup" aria-label="Day">
               ${days.map(([a, b], i) => html`<button type="button" class="chip chip--toggle ${st.day === i ? 'is-on' : ''}" data-day="${i}"
@@ -131,7 +171,7 @@ export async function renderCheckout(view) {
                   role="radio" aria-checked="${st.slot === s ? 'true' : 'false'}">${s}${open ? '' : html`<small>closed</small>`}</button>`;
               })}
             </div>
-          </section>
+          </section>`}
 
           <section class="checkout-card" aria-labelledby="step3">
             <h2 id="step3"><span class="step-num">3</span> Payment</h2>
@@ -163,12 +203,16 @@ export async function renderCheckout(view) {
               <span class="summary-lines__name">Gift box of ${b.size}<small class="muted">${b.ribbon} ribbon · ${[...new Set(b.items)].length} kinds</small></span>
               <strong>${rupees(boxPrice(b))}</strong></li>`)}
           </ul>
-          <div class="summary-row"><span>Subtotal</span><span>${rupees(sub)}</span></div>
-          <div class="summary-row"><span>${st.fulfilment === 'delivery' ? 'Delivery' : 'Pickup'}</span><span>Free</span></div>
-          ${discount ? html`<div class="summary-row summary-row--save"><span>🍬 Mix & Save (${distinct} sweets, ${deal.percent}%)</span><span>−${rupees(discount)}</span></div>` : ''}
-          ${giftBox ? html`<div class="summary-row summary-row--gift"><span>🎁 Deepawali gift box</span><span>Free</span></div>` : ''}
-          ${qualifiesForSample(distinct) ? html`<div class="summary-row summary-row--gift"><span>✨ Free taste of a new arrival</span><span>Free</span></div>` : ''}
-          <div class="summary-row summary-row--total"><span>Total</span><strong>${rupees(sub - discount)}</strong></div>
+          <div id="money" aria-live="polite">${moneyRows(st.price, { sub, discount, distinct, percent: deal.percent, giftBox, sample: qualifiesForSample(distinct) }, st.fulfilment)}</div>
+          <div class="coupon-box">
+            <label class="field field--inline"><span>🎟️ Coupon</span>
+              <input id="coupon-input" autocomplete="off" maxlength="20" placeholder="e.g. SSAB12CD" value="${getCoupon()}"></label>
+            <button type="button" class="btn btn--sm" data-apply-coupon>Apply</button>
+            ${getCoupon() ? html`<button type="button" class="link-btn" data-clear-coupon>Remove</button>` : ''}
+            <p class="coupon-box__msg small" id="coupon-msg" role="status">${st.price?.coupon && !st.price.coupon.valid ? st.price.coupon.message : ''}</p>
+            <div class="chips" id="coupon-chips">${couponChips()}</div>
+          </div>
+          ${st.priceNote ? html`<p class="checkout__note" role="alert">${st.priceNote}</p>` : ''}
           ${deal.next ? html`<p class="summary-nudge">🍬 Add ${deal.next.needed} more different sweet${deal.next.needed > 1 ? 's' : ''} for ${deal.next.percent}% off · <a href="#/catalog">browse</a></p>` : ''}
           <p class="checkout__error" role="alert" hidden></p>
           <button type="button" class="btn btn--gold btn--lg btn--block" id="place-order">Place Order 🪔</button>
@@ -177,6 +221,19 @@ export async function renderCheckout(view) {
       </div>
     </div>`;
   };
+
+  async function refreshPrice() {
+    const p = await priceCart({ orderType: preSlot ? 'preorder' : 'regular' });
+    st.price = p;
+    const box = $('#money', view);
+    if (!box) return;
+    const distinct = sweetIdsInCart().length;
+    const est = { sub: subtotal(), discount: discountFor(subtotal(), distinct), distinct, percent: mixSave(distinct).percent,
+      giftBox: subtotal() >= (getRules().gift_box_threshold || GIFT_BOX_RULE.threshold), sample: qualifiesForSample(distinct) };
+    box.innerHTML = moneyRows(p, est, st.fulfilment);
+    const msg = $('#coupon-msg', view);
+    if (msg) msg.textContent = p?.coupon && !p.coupon.valid ? p.coupon.message : p?.coupon?.valid ? `✓ ${p.coupon.message}` : '';
+  }
 
   const readForm = () => {
     const f = $('#checkout-form', view);
@@ -204,6 +261,13 @@ export async function renderCheckout(view) {
     if (d) { readForm(); st.day = Number(d.dataset.day); draw(); return; }
     const s = e.target.closest('[data-slot]');
     if (s && !s.disabled) { readForm(); st.slot = s.dataset.slot; draw(); return; }
+    if (e.target.closest('[data-apply-coupon]')) {
+      readForm(); setCoupon($('#coupon-input', view)?.value); st.priceNote = ''; draw(); refreshPrice();
+      return;
+    }
+    if (e.target.closest('[data-clear-coupon]')) { readForm(); setCoupon(''); draw(); refreshPrice(); return; }
+    const uc = e.target.closest('[data-use-coupon]');
+    if (uc) { readForm(); setCoupon(uc.dataset.useCoupon); draw(); refreshPrice(); return; }
     if (e.target.closest('#place-order')) { readForm(); await place(); }
   });
 
@@ -219,8 +283,9 @@ export async function renderCheckout(view) {
       if (!/^[0-9+\s-]{10,15}$/.test(address.phone || '')) return fail('Please enter a valid 10-digit phone number.');
       if (!/^[0-9]{6}$/.test(address.pincode || '')) return fail('Please enter a 6-digit PIN code.');
     }
-    if (!st.slot) return fail(`Please choose a ${st.fulfilment === 'delivery' ? 'delivery' : 'pickup'} time.`);
-    const slotLabel = `${days[st.day][0]}${days[st.day][1] ? ` (${days[st.day][1]})` : ''}, ${st.slot}`;
+    if (!st.slot && !preSlot) return fail(`Please choose a ${st.fulfilment === 'delivery' ? 'delivery' : 'pickup'} time.`);
+    const slotLabel = preSlot ? null : `${days[st.day][0]}${days[st.day][1] ? ` (${days[st.day][1]})` : ''}, ${st.slot}`;
+    if (st.price?.coupon && !st.price.coupon.valid) return fail(`Coupon: ${st.price.coupon.message}. Remove it or try another.`);
 
     btn.disabled = true;
     btn.textContent = 'Order ho raha hai…';
@@ -231,6 +296,9 @@ export async function renderCheckout(view) {
         p_address: address,
         p_delivery_slot: slotLabel,
         p_gift_message: st.gift.trim() || null,
+        p_coupon_code: getCoupon() || null,
+        p_preorder_slot_id: preSlot?.id || null,
+        p_expected_total: st.price ? Number(st.price.total) : null,
       });
       if (error) throw error;
       const order = Array.isArray(data) ? data[0] : data;
@@ -238,17 +306,28 @@ export async function renderCheckout(view) {
         updateProfile({ addresses: [...saved, address].slice(-5), phone: profile.phone || address.phone }).catch(() => {});
       }
       clearLocal();
+      setCoupon('');
       await loadCatalog({ force: true }).catch(() => null);   // stock changed
       location.hash = `#/order/${order.id}?new=1`;
     } catch (ex) {
       console.warn('[checkout]', ex);
       const msg = ex.message || '';
-      fail(/stock|limited/i.test(msg) ? `${msg}. Please reduce the quantity in your cart.` : msg || 'Could not place the order. Please try again.');
       btn.disabled = false;
       btn.textContent = 'Place Order 🪔';
+      if (msg.startsWith('PRICE_CHANGED')) {
+        // A last-hour deal ended (or stock changed) between cart and checkout: show the new total first.
+        await refreshPrice();
+        st.priceNote = `⏰ Prices just changed (a last-hour deal ended). New total: ${rupees(st.price?.total)}. Tap Place Order again to confirm.`;
+        draw(); refreshPrice();
+        document.dispatchEvent(new CustomEvent('ss:say', { detail: { text: 'Ji, deal da time khatam ho gaya — naya total dekh ke confirm karo.', mood: 'think' } }));
+        return;
+      }
+      fail(/stock|limited/i.test(msg) ? `${msg}. Please reduce the quantity in your cart.` : msg || 'Could not place the order. Please try again.');
     }
   }
 
   draw();
-  store.on('cart', () => { if (document.body.dataset.route === 'checkout' && $('#checkout-form', view)) { readForm(); draw(); } });
+  refreshPrice();
+  store.on('cart', () => { if (document.body.dataset.route === 'checkout' && $('#checkout-form', view)) { readForm(); draw(); refreshPrice(); } });
+  document.addEventListener('ss:live', (e) => { if (e.detail?.kind === 'deals' && document.body.dataset.route === 'checkout' && $('#money', view)) refreshPrice(); });
 }

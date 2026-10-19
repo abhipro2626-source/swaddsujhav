@@ -7,7 +7,11 @@ import { FLAGS, sweetCard, stepper, skeletonCards } from '../cards.js';
 import { add, qtyOf, logEvent } from '../cart.js';
 import { isFav } from '../favorites.js';
 import { related } from '../recommend.js';
-import { store } from '../state.js';
+import { store, local } from '../state.js';
+import { comboPicks, comboHTML } from '../combos.js';
+import { freshFor, dealFor, dealPrice } from '../live.js';
+import { agoText } from '../feature-config.js';
+import { toast } from '../ui.js';
 
 let current = null;
 
@@ -39,7 +43,9 @@ export async function openSweet(slug, { onClose } = {}) {
     const v = s.variants.find((x) => x.id === selected);
     const avail = v && isVariantAvailable(v) && s.in_stock;
     const q = v ? qtyOf(v.id) : 0;
+    const deal = avail ? dealFor(s.id) : null;
     return html`
+      ${deal ? html`<p class="detail-deal">⏰ Last-hour deal: <strong>${deal.percent}% off</strong> right now${deal.kg_left != null ? ` · sirf ${Number(deal.kg_left).toFixed(1)} kg bacha` : ''}</p>` : ''}
       <fieldset class="weights">
         <legend>${t('choose_weight')}</legend>
         ${s.variants.map((x) => {
@@ -57,7 +63,7 @@ export async function openSweet(slug, { onClose } = {}) {
         ${avail
           ? q ? stepper(v.id, q, s.name)
               : html`<button type="button" class="btn btn--gold btn--lg" data-detail-add>
-                  <svg aria-hidden="true"><use href="#i-cart"/></svg> ${t('add_to_cart')} · ${rupees(v.price)}</button>`
+                  <svg aria-hidden="true"><use href="#i-cart"/></svg> ${t('add_to_cart')} · ${deal ? html`<s>${rupees(v.price)}</s> ${rupees(dealPrice(s.id, v.price))}` : rupees(v.price)}</button>`
           : html`<button type="button" class="btn btn--lg" disabled>${t('out_of_stock')}</button>`}
         <button type="button" class="icon-btn fav-btn fav-btn--inline ${isFav(s.id) ? 'is-on' : ''}" data-fav="${s.id}"
           aria-pressed="${isFav(s.id) ? 'true' : 'false'}" aria-label="Favourite ${s.name}">
@@ -83,6 +89,8 @@ export async function openSweet(slug, { onClose } = {}) {
         <span class="muted">(${s.rating_count} reviews)</span></p>
       <p class="detail__desc">${s.description}</p>
       <div id="buy-slot">${renderBuy()}</div>
+      ${freshness(s)}
+      <button type="button" class="link-btn" data-plan-wish>👨‍👩‍👧 Add to my Rishtedaar gift plan</button>
       ${diet.length ? html`<p class="diet-badges">${diet.map((d) => html`<span class="chip chip--sm">${d}</span>`)}</p>` : ''}
     </div>
 
@@ -105,6 +113,7 @@ export async function openSweet(slug, { onClose } = {}) {
           <p class="taste-texture">${t('t_texture')}: <strong>${s.texture || '—'}</strong></p>
         </div>
       </section>
+      ${s.product_type === 'mithai' ? html`<section class="detail__section" id="combo-slot" hidden><h3>🥨 Iske saath namkeen?</h3><div></div></section>` : ''}
       <section class="detail__section shayari-card" id="shayari-slot" aria-live="polite">
         <p class="muted">Paaji shayari likh rahe hain…</p>
       </section>
@@ -119,6 +128,13 @@ export async function openSweet(slug, { onClose } = {}) {
     if (e.target.name === `w-${s.id}`) { selected = Number(e.target.value); $('#buy-slot', modal.body).innerHTML = renderBuy(); }
   });
   modal.body.addEventListener('click', (e) => {
+    if (e.target.closest('[data-plan-wish]')) {
+      const wish = new Set(local.get('ss:plan-wish', []));
+      wish.add(s.id);
+      local.set('ss:plan-wish', [...wish].slice(-12));
+      toast(`${s.name} gift planner mein yaad rakhi ji. Planner kholne par Paaji isse shamil karenge.`, 'success', 4200);
+      return;
+    }
     const b = e.target.closest('[data-detail-add]');
     if (b) {
       const v = s.variants.find((x) => x.id === selected);
@@ -148,6 +164,16 @@ export async function openSweet(slug, { onClose } = {}) {
     draw();
   }).catch(() => $('#shayari-slot', modal.body)?.remove());
 
+  // Namkeen pairing (async)
+  if (s.product_type === 'mithai') {
+    comboPicks([s.id], 3).then((picks) => {
+      const slot = $('#combo-slot', modal.body);
+      if (!slot || !picks.length) return;
+      slot.querySelector('div').innerHTML = comboHTML(picks);
+      slot.hidden = false;
+    }).catch(() => {});
+  }
+
   // Recommendation rows (async)
   for (const [kind, id, title, icon] of [['content', 'rel-content', t('more_like'), '🍬'], ['together', 'rel-together', t('goes_with'), '🤝'], ['also', 'rel-also', t('also_bought'), '👥']]) {
     related(s, kind, 10).then(({ items, reasons }) => {
@@ -161,6 +187,21 @@ export async function openSweet(slug, { onClose } = {}) {
     }).catch(() => { const slot = $(`#${id}`, modal.body); if (slot) slot.innerHTML = ''; });
   }
   return modal;
+}
+
+/** Aaj ka Taaza: made at, best before and a freshness bar. */
+function freshness(s) {
+  const f = freshFor(s.id);
+  if (!f) return '';
+  const made = new Date(f.made_at);
+  const best = new Date(f.best_before);
+  const pct = Math.max(4, Math.min(100, ((best - Date.now()) / (best - made)) * 100));
+  return html`<div class="freshness">
+    <p><strong>🔥 Aaj ka Taaza</strong> · Bana: ${made.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })} (<span data-ago="${f.made_at}">${agoText(f.made_at)}</span>)
+      · Best before: ${best.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}</p>
+    <div class="freshness__bar" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}" aria-label="Freshness ${Math.round(pct)} percent">
+      <span style="--w:${pct}%"></span></div>
+  </div>`;
 }
 
 function relRow(id, title, icon) {

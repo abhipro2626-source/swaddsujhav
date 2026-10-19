@@ -7,7 +7,9 @@ import { initLang, toggleLang, applyI18n, t, sweetName } from './i18n.js';
 import { loadCatalog, getById, search, firstAvailableVariant, variantById, isVariantAvailable } from './catalog.js';
 import { syncCart, add, setQty, count, qtyOf } from './cart.js';
 import { loadFavorites, toggleFav } from './favorites.js';
-import { refreshCards, flyToCart } from './cards.js';
+import { refreshCards, flyToCart, tickAgo } from './cards.js';
+import { startLive } from './live.js';
+import { loadSettings } from './feature-config.js';
 import { initCartDrawer, openCart, closeCart } from './cartDrawer.js';
 import { needsQuiz, openQuiz } from './quiz.js';
 import { DIWALI } from './pages/home.js';
@@ -29,6 +31,10 @@ const ROUTES = [
   { name: 'budget', re: /^\/budget$/, load: () => import('./pages/budget.js').then((m) => m.renderBudget) },
   { name: 'map', re: /^\/map$/, load: () => import('./pages/worldmap.js').then((m) => m.renderWorldMap) },
   { name: 'admin', re: /^\/admin(?:\/(\w+))?$/, load: () => import('./pages/admin.js').then((m) => m.renderAdmin) },
+  { name: 'owner', re: /^\/owner$/, load: () => import('./pages/owner.js').then((m) => m.renderOwner) },
+  { name: 'festivals', re: /^\/festivals$/, load: () => import('./pages/festivals.js').then((m) => m.renderFestivals) },
+  { name: 'gift-planner', re: /^\/gift-planner$/, load: () => import('./pages/giftplanner.js').then((m) => m.renderGiftPlanner) },
+  { name: 'bhooli', re: /^\/bhooli-mithai$/, load: () => import('./pages/bhooli.js').then((m) => m.renderBhooli) },
 ];
 
 function parseHash() {
@@ -66,7 +72,7 @@ async function router() {
 async function renderRoute(route, args, params) {
   const id = ++rendering;
   closeCart();
-  if (route.name === 'admin' && !isAdmin()) {
+  if ((route.name === 'admin' || route.name === 'owner') && !isAdmin()) {
     toast(store.get('user') ? 'Admins only, ji.' : 'Please log in as the shop admin.', 'info');
     location.hash = '#/profile';
     return;
@@ -230,6 +236,17 @@ function initGlobalClicks() {
       await loadCatalog();
       const s = getById(addBtn.dataset.add);
       const v = (addBtn.dataset.variant && variantById(s, addBtn.dataset.variant)) || firstAvailableVariant(s);
+      if (s && v && addBtn.dataset.combo) {
+        // Namkeen pairing: Paaji says the combo line instead of the usual add line.
+        if (add(s, v, 1, { silent: true })) {
+          flyToCart(addBtn);
+          const { paajiSay } = await import('./lines.js');
+          const { lines } = await import('./cart.js');
+          const mithai = lines().find((l) => l.sweet.product_type !== 'namkeen')?.sweet;
+          paajiSay('combo', { sweet: mithai?.name || 'Mithai', added: s.name }, { mood: 'celebrate', group: 'add' });
+        }
+        return;
+      }
       if (s && v) add(s, v, 1, { from: addBtn });
       return;
     }
@@ -309,7 +326,7 @@ async function boot() {
   showConnection();
 
   // Optional modules (mascot, voice, effects). The shop works without them.
-  for (const [path, fn] of [['./paaji.js', 'initPaaji'], ['./voice.js', 'initVoice'], ['./festive.js', 'initFestive']]) {
+  for (const [path, fn] of [['./paaji.js', 'initPaaji'], ['./voice.js', 'initVoice'], ['./festive.js', 'initFestive'], ['./hotalert.js', 'initHotAlerts']]) {
     import(path).then((m) => m[fn]?.()).catch((err) => console.debug(`[boot] ${path} skipped`, err.message));
   }
 
@@ -330,6 +347,12 @@ async function boot() {
   $('#lang-btn .lang-label').textContent = store.get('lang') === 'hi' ? 'EN' : 'हि';
 
   loadCatalog().catch((err) => console.warn('[boot] catalog', err));
+  loadSettings().catch(() => null);
+  startLive().catch((err) => console.debug('[boot] live', err));
+  document.addEventListener('ss:live', (e) => {
+    if (e.detail?.kind === 'tick') tickAgo();
+    else if (e.detail?.kind === 'deals' || e.detail?.kind === 'fresh') refreshCards(null, getById);
+  });
   loadDeals().then(() => refreshCards(null, getById));   // show social proof once counts arrive
   initTrio();
   await initAuth();

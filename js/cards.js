@@ -6,6 +6,8 @@ import { qtyOf } from './cart.js';
 import { isFav } from './favorites.js';
 import { store } from './state.js';
 import { ordersThisMonth } from './deals.js';
+import { dealFor, dealPrice, freshFor } from './live.js';
+import { agoText } from './feature-config.js';
 
 export const FLAGS = {
   India: '📍', Turkey: '🇹🇷', 'Middle East': '🌙', Japan: '🇯🇵', China: '🇨🇳', 'Hong Kong': '🇭🇰',
@@ -29,7 +31,10 @@ export function sweetCard(s, { reason = null, compact = false } = {}) {
     s.is_new ? html`<span class="tag tag--new">New</span>` : '',
     (s.tags || []).includes('bestseller') ? html`<span class="tag tag--best">Bestseller</span>` : '',
     s.is_sugar_free ? html`<span class="tag tag--sf">Sugar-free</span>` : '',
+    s.product_type === 'namkeen' ? html`<span class="tag tag--namkeen">Namkeen</span>` : '',
   ].filter(Boolean);
+  const fresh = freshFor(s.id);
+  const deal = soldOutFree(s, v) ? dealFor(s.id) : null;
 
   return html`
   <article class="sweet-card ${compact ? 'sweet-card--compact' : ''} ${soldOut ? 'is-soldout' : ''}"
@@ -39,6 +44,8 @@ export function sweetCard(s, { reason = null, compact = false } = {}) {
       ${sweetImage(s)}
       <span class="sweet-card__badges">${badges}</span>
       ${soldOut ? html`<span class="sweet-card__soldout">${t('out_of_stock')}</span>` : ''}
+      ${fresh && !soldOut ? html`<span class="taaza-badge" title="Made ${new Date(fresh.made_at).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })}">🔥 Aaj ka Taaza</span>` : ''}
+      ${deal ? html`<span class="deal-badge">⏰ ${deal.percent}% off</span>` : ''}
     </a>
     <button type="button" class="fav-btn ${fav ? 'is-on' : ''}" data-fav="${s.id}"
             aria-pressed="${fav ? 'true' : 'false'}" aria-label="${fav ? 'Remove from' : 'Add to'} favourites: ${s.name}">
@@ -51,7 +58,8 @@ export function sweetCard(s, { reason = null, compact = false } = {}) {
       <p class="sweet-card__sub">
         ${store.get('lang') === 'hi' ? s.name : s.name_hi || ''}
       </p>
-      ${ordersThisMonth(s.id) >= 3 && !compact ? html`<p class="social-proof">🔥 ${ordersThisMonth(s.id)} orders this month</p>` : ''}
+      ${fresh && !compact ? html`<p class="taaza-line">Bana: <span data-ago="${fresh.made_at}">${agoText(fresh.made_at)}</span></p>`
+        : ordersThisMonth(s.id) >= 3 && !compact ? html`<p class="social-proof">🔥 ${ordersThisMonth(s.id)} orders this month</p>` : ''}
       <p class="sweet-card__meta">
         <span class="region-badge" title="${s.country}">${FLAGS[s.country] || '🌍'} ${s.region}</span>
         <span class="rating" aria-label="Rated ${s.rating} out of 5">
@@ -59,9 +67,11 @@ export function sweetCard(s, { reason = null, compact = false } = {}) {
       </p>
       <div class="sweet-card__foot">
         <p class="price">
-          <strong>${rupees(v?.price ?? s.base_price)}</strong>
+          ${deal ? html`<s class="price__old">${rupees(v.price)}</s> <strong class="price__deal">${rupees(dealPrice(s.id, v.price))}</strong>`
+            : html`<strong>${rupees(v?.price ?? s.base_price)}</strong>`}
           <span class="muted">/ ${v?.weight_label || s.price_unit}</span>
-          ${low ? html`<span class="low-stock">${t('only_left', { n: v.stock_qty })}</span>` : ''}
+          ${deal && deal.kg_left != null ? html`<span class="low-stock">Sirf ${Number(deal.kg_left).toFixed(1)} kg bacha</span>`
+            : low ? html`<span class="low-stock">${t('only_left', { n: v.stock_qty })}</span>` : ''}
         </p>
         ${soldOut ? raw('') : inCart
           ? stepper(v.id, inCart, s.name)
@@ -71,6 +81,13 @@ export function sweetCard(s, { reason = null, compact = false } = {}) {
       </div>
     </div>
   </article>`;
+}
+
+const soldOutFree = (s, v) => s.in_stock && v && isVariantAvailable(v);
+
+/** Keep "Bana: 2 ghante pehle" current without re-rendering cards. */
+export function tickAgo(root = document) {
+  root.querySelectorAll('[data-ago]').forEach((el) => { el.textContent = agoText(el.dataset.ago); });
 }
 
 export function stepper(variantId, qty, label = '') {

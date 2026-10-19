@@ -6,6 +6,7 @@ import { row } from '../cards.js';
 import { forUser } from '../recommend.js';
 import { store } from '../state.js';
 import { supabase } from '../supabase.js';
+import { mountHomeFeatures } from '../homeFeatures.js';
 
 // Deepawali 2026: Sunday 8 November (Kartik Amavasya). Lakshmi Puja muhurat in the
 // Delhi–NCR region (nearest to Muzaffarnagar) begins about 5:30 PM IST.
@@ -81,7 +82,11 @@ export async function renderHome(app) {
         </div>
       </section>
 
+      <div id="reminder-slot"></div>
+      <div id="context-slot"></div>
+      <div id="deals-slot"></div>
       <div id="usual-slot"></div>
+      <div id="taaza-slot"></div>
 
       <div id="foryou-slot">${row({ id: 'row-foryou', title: user ? t('row_for_you') : t('row_for_you_guest'), items: [] })}</div>
 
@@ -107,11 +112,12 @@ export async function renderHome(app) {
               items: filterSweets(list, { flag: 'festive', inStock: true }).slice(0, 14) })}
       ${row({ id: 'row-world', title: t('row_world'), sub: 'Gulab jamun se baklava aur mochi tak', href: '#/catalog?flag=world',
               items: filterSweets(list, { flag: 'world', inStock: true }).slice(0, 14) })}
+      <div id="jodi-slot"></div>
       ${row({ id: 'row-best', title: t('row_best'), href: '#/catalog?sort=popular',
-              items: [...list].filter((s) => s.in_stock).sort(SORTS.popular).slice(0, 14),
+              items: [...list].filter((s) => s.in_stock && s.product_type !== 'namkeen').sort(SORTS.popular).slice(0, 14),
               reasons: new Map(list.filter((s) => (s.tags || []).includes('bestseller')).map((s) => [s.id, { text: 'Bestseller', kind: 'popular' }])) })}
       ${row({ id: 'row-healthy', title: t('row_healthy'), sub: 'Diabetic-friendly and no added sugar', href: '#/catalog?diet=sugar_free',
-              items: list.filter((s) => s.in_stock && (s.is_sugar_free || (s.tags || []).includes('healthy'))).slice(0, 14) })}
+              items: list.filter((s) => s.in_stock && s.product_type !== 'namkeen' && (s.is_sugar_free || (s.tags || []).includes('healthy'))).slice(0, 14) })}
 
       <section class="tiles" aria-labelledby="regions-title">
         <header class="row__head"><h2 id="regions-title" class="row__title">${t('row_region')}</h2>
@@ -134,6 +140,11 @@ export async function renderHome(app) {
         </div>
       </section>
 
+      <section class="extras" aria-label="Paaji's new tricks">
+        <a class="extra-card" href="#/bhooli-mithai"><span aria-hidden="true">🕵️</span><strong>Bhooli Hui Mithai</strong><span class="muted">Naam yaad nahi? Describe karo — Paaji pehchaan lenge</span></a>
+        <a class="extra-card" href="#/gift-planner"><span aria-hidden="true">👨‍👩‍👧</span><strong>Rishtedaar Gift Planner</strong><span class="muted">Saare rishtedaar, ek budget — dabbe Paaji banayenge</span></a>
+        <a class="extra-card" href="#/festivals"><span aria-hidden="true">🗓️</span><strong>Festival Pre-orders</strong><span class="muted">Deepawali ki mithai pehle se book karo</span></a>
+      </section>
       <section class="extras" aria-label="More from Paaji">
         <a class="extra-card" href="#/gift-box"><span aria-hidden="true">🎁</span><strong>Gift Box Builder</strong><span class="muted">Pick 4, 9 or 16 and fill the box</span></a>
         <a class="extra-card" href="#/budget"><span aria-hidden="true">💰</span><strong>Budget Mode</strong><span class="muted">"₹500 for 10 guests" — Paaji builds the mix</span></a>
@@ -144,6 +155,7 @@ export async function renderHome(app) {
 
   startCountdowns();
   startOffers();
+  mountHomeFeatures(app, list);
   startParallax(app);
   loadForYou(mood);
   loadUsual();

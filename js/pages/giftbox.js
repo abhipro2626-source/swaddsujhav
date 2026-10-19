@@ -114,7 +114,7 @@ export async function renderGiftBox(view) {
     const kept = st.slots.filter(Boolean).slice(0, n);
     st.size = n;
     st.slots = [...kept, ...Array(n - kept.length).fill(null)];
-    view.querySelectorAll('[data-size]').forEach((b) => { const on = Number(b.dataset.size) === n; b.classList.toggle('is-on', on); b.setAttribute('aria-checked', String(on)); });
+    view.querySelectorAll('button[data-size]').forEach((b) => { const on = Number(b.dataset.size) === n; b.classList.toggle('is-on', on); b.setAttribute('aria-checked', String(on)); });
     drawBox();
   }
 
@@ -149,7 +149,7 @@ export async function renderGiftBox(view) {
   }
 
   view.addEventListener('click', async (e) => {
-    const size = e.target.closest('[data-size]');
+    const size = e.target.closest('button[data-size]');
     if (size) { resize(Number(size.dataset.size)); return; }
     const pick = e.target.closest('[data-pick]');
     if (pick) { put(pick.dataset.pick); return; }
@@ -189,15 +189,15 @@ export async function renderGiftBox(view) {
 
   // Desktop drag & drop (tap works everywhere).
   view.addEventListener('dragstart', (e) => {
-    const p = e.target.closest('[data-pick]');
+    const p = e.target.closest?.('[data-pick]');
     if (p) { e.dataTransfer.setData('text/plain', p.dataset.pick); e.dataTransfer.effectAllowed = 'copy'; }
   });
-  grid.addEventListener('dragover', (e) => { e.preventDefault(); e.target.closest('.gb-slot')?.classList.add('is-over'); });
-  grid.addEventListener('dragleave', (e) => e.target.closest('.gb-slot')?.classList.remove('is-over'));
+  grid.addEventListener('dragover', (e) => { e.preventDefault(); e.target.closest?.('.gb-slot')?.classList.add('is-over'); });
+  grid.addEventListener('dragleave', (e) => e.target.closest?.('.gb-slot')?.classList.remove('is-over'));
   grid.addEventListener('drop', (e) => {
     e.preventDefault();
     const id = e.dataTransfer.getData('text/plain');
-    const slot = e.target.closest('.gb-slot');
+    const slot = e.target.closest?.('.gb-slot');
     if (id) put(id, slot ? Number(slot.dataset.slot) : undefined);
   });
 

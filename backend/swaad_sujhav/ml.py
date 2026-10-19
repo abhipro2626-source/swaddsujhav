@@ -7,7 +7,7 @@ Pipeline (see README → "How recommendations work"):
   2. Collaborative  — implicit-feedback matrix (orders 3, favourites 2, add-to-cart 1)
                       → item-item cosine and truncated SVD user factors.
   3. Basket lift    — sweets that land in the same order ("goes great with").
-  4. Ranking        — score = 0.40 taste + 0.25 collaborative + 0.15 popularity
+  4. Ranking        — score = 0.35 taste + 0.20 collaborative + 0.10 popularity
                               + 0.10 new + 0.10 occasion,
                       with diet rules, stock, variety and a human reason per pick.
 Outputs are written to Supabase (sweet_similar, user_recos, sweet_embeddings) and kept
@@ -26,7 +26,9 @@ import numpy as np
 
 log = logging.getLogger("swaad.ml")
 
-WEIGHTS = {"taste": 0.40, "collab": 0.25, "popularity": 0.15, "new": 0.10, "occasion": 0.10}
+# Server half of the shop-wide formula (the browser adds freshness 0.07, context 0.06, deal 0.04):
+#   score = 0.35 taste + 0.20 bought-together/collab + 0.10 popularity + 0.10 new + 0.08 occasion + live signals
+WEIGHTS = {"taste": 0.35, "collab": 0.20, "popularity": 0.10, "new": 0.10, "occasion": 0.08}
 ACTION_WEIGHT = {"add_to_cart": 1.0, "favorite": 2.0, "view": 0.3}
 EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 

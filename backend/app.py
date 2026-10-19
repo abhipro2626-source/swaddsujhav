@@ -340,6 +340,12 @@ for public_dir in ("css", "js", "assets", "docs/voice-samples"):
 app.mount("/supabase/templates", NoCacheStatic(directory=FRONTEND_DIR / "supabase" / "templates"), name="templates")
 
 
+@app.get("/sw.js", include_in_schema=False)
+async def service_worker():
+    from fastapi.responses import FileResponse
+    return FileResponse(FRONTEND_DIR / "sw.js", media_type="text/javascript", headers={"Cache-Control": "no-cache"})
+
+
 @app.get("/", include_in_schema=False)
 async def index():
     from fastapi.responses import FileResponse

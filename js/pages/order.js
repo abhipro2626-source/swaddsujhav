@@ -7,6 +7,7 @@ import { loadCatalog, getById } from '../catalog.js';
 import { row } from '../cards.js';
 import { forUser } from '../recommend.js';
 import { tracker } from './profile.js';
+import { mountScratch } from '../scratch.js';
 
 let channel = null;
 
@@ -16,7 +17,7 @@ export async function renderOrder(view, id, params) {
   view.innerHTML = html`<div class="page container">${raw(rangoliLoader('Order dhoond rahe hain…'))}</div>`;
   await loadCatalog().catch(() => null);
   const { data: o, error } = await supabase.from('orders')
-    .select('*, order_items(sweet_id, variant_id, quantity, price), order_gift_boxes(size, ribbon, message, items, price)').eq('id', id).maybeSingle();
+    .select('*, order_items(sweet_id, variant_id, quantity, price, is_free), order_gift_boxes(size, ribbon, message, items, price)').eq('id', id).maybeSingle();
   if (error || !o) {
     view.innerHTML = html`<div class="page container">${raw(emptyState({ icon: '🔍', title: 'Order not found',
       text: 'It may belong to another account.', action: '<a class="btn btn--gold" href="#/profile">Your orders</a>' }))}</div>`;
@@ -31,8 +32,9 @@ export async function renderOrder(view, id, params) {
       ${isNew ? html`<section class="order-hero">
         <p class="order-hero__emoji" aria-hidden="true">🪔🎉🪔</p>
         <h1 class="page-title">Wah ji wah! Order ho gaya.</h1>
-        <p class="muted">Thank you! Paaji is packing your thaali with love.</p>
+        <p class="muted">${order.order_type === 'preorder' ? 'Booking pakki! Paaji will make it fresh for your slot.' : 'Thank you! Paaji is packing your thaali with love.'}</p>
       </section>` : html`<h1 class="page-title">Order ${order.order_number}</h1>`}
+      <div id="scratch-slot"></div>
 
       <section class="panel">
         <header class="panel__head">
@@ -54,13 +56,16 @@ export async function renderOrder(view, id, params) {
           ${items.map((i) => html`<li>${sweetImage(i.sweet, { size: 'thumb' })}
             <span class="summary-lines__name"><a href="#/sweet/${i.sweet.slug}" data-open="${i.sweet.slug}">${sweetName(i.sweet)}</a>
               <small class="muted">${i.sweet.variants.find((v) => v.id === i.variant_id)?.weight_label || ''} × ${i.quantity}</small></span>
-            <strong>${rupees(i.price * i.quantity)}</strong></li>`)}
+            <strong>${i.is_free ? 'Free 🎟️' : rupees(i.price * i.quantity)}</strong></li>`)}
           ${(order.order_gift_boxes || []).map((b) => html`<li><span class="summary-box" aria-hidden="true">🎁</span>
             <span class="summary-lines__name">Gift box of ${b.size}<small class="muted">${b.ribbon} ribbon${b.message ? ` · “${b.message}”` : ''}</small></span>
             <strong>${rupees(b.price)}</strong></li>`)}
         </ul>
         ${Number(order.discount) > 0 ? html`<div class="summary-row"><span>Subtotal</span><span>${rupees(order.subtotal)}</span></div>
-          <div class="summary-row summary-row--save"><span>🍬 Mix & Save</span><span>−${rupees(order.discount)}</span></div>` : ''}
+          ${Number(order.deal_discount) ? html`<div class="summary-row summary-row--save"><span>⏰ Last-hour deals</span><span>−${rupees(order.deal_discount)}</span></div>` : ''}
+          ${Number(order.combo_discount) ? html`<div class="summary-row summary-row--save"><span>🥨 Jodi combo</span><span>−${rupees(order.combo_discount)}</span></div>` : ''}
+          ${Number(order.mix_discount) || (!Number(order.deal_discount) && !Number(order.combo_discount) && !Number(order.coupon_discount)) ? html`<div class="summary-row summary-row--save"><span>🍬 Mix & Save</span><span>−${rupees(Number(order.mix_discount) || order.discount)}</span></div>` : ''}
+          ${Number(order.coupon_discount) ? html`<div class="summary-row summary-row--save"><span>🎟️ Coupon</span><span>−${rupees(order.coupon_discount)}</span></div>` : ''}` : ''}
         ${order.free_sample_sweet_id && getById(order.free_sample_sweet_id) ? html`<div class="summary-row summary-row--gift">
           <span>✨ Free taste: ${sweetName(getById(order.free_sample_sweet_id))}</span><span>Free</span></div>` : ''}
         <div class="summary-row summary-row--total"><span>Total</span><strong>${rupees(order.total)}</strong></div>
@@ -73,6 +78,7 @@ export async function renderOrder(view, id, params) {
     </div>`;
   };
   draw(o);
+  mountScratch(view.querySelector('#scratch-slot'), o.id).catch((e) => console.debug('[scratch]', e));
 
   // Paaji's next sujhaav (excludes what was just bought).
   forUser({ limit: 10 }).then(({ items: recs, reasons }) => {

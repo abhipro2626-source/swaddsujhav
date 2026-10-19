@@ -8,6 +8,9 @@ import { upsell } from './recommend.js';
 import { sweetCard } from './cards.js';
 import { store } from './state.js';
 import { mixSave, discountFor, getRules, qualifiesForSample } from './deals.js';
+import { comboPicks, comboHTML } from './combos.js';
+import { priceCart, getCoupon } from './pricing.js';
+import { dealFor } from './live.js';
 
 // Configurable combo rule (also shown on the home page offers).
 export const GIFT_BOX_RULE = { threshold: 999, reward: 'a free Deepawali gift box' };
@@ -27,6 +30,8 @@ export function openCart() {
   document.body.classList.add('has-drawer');
   $('.drawer__panel', d).focus({ preventScroll: true });
   loadUpsell();
+  loadCombo();
+  refreshDrawerPrice();
   document.dispatchEvent(new CustomEvent('ss:cart-open'));
 }
 
@@ -83,6 +88,7 @@ export function render() {
             </div>
             <strong>${rupees(l.total)}</strong>
           </div>
+          ${dealFor(l.sweet.id) ? html`<span class="cart-line__deal">⏰ ${dealFor(l.sweet.id).percent}% last-hour deal at checkout</span>` : ''}
         </div>
         <button type="button" class="icon-btn icon-btn--sm cart-line__remove" data-line-remove="${l.variant.id}" aria-label="Remove ${l.sweet.name}">
           <svg aria-hidden="true"><use href="#i-trash"/></svg></button>
@@ -116,6 +122,10 @@ export function render() {
       <div class="combo__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}" aria-label="Progress to free gift box">
         <span style="--p:${pct}%"></span></div>
     </section>
+    <section class="upsell" id="combo-card" aria-labelledby="combo-title" hidden>
+      <h3 id="combo-title">🥨 Meetha ho gaya, ab thoda namkeen?</h3>
+      <div id="combo-list"></div>
+    </section>
     <section class="upsell" id="upsell" aria-labelledby="upsell-title">
       <h3 id="upsell-title">🧔🏽 Paaji kehte hain: ye bhi le lo!</h3>
       <div class="upsell__list" id="upsell-list">${lastUpsellHTML ? raw(lastUpsellHTML) : html`<p class="muted">Soch rahe hain…</p>`}</div>
@@ -123,9 +133,32 @@ export function render() {
   foot.innerHTML = html`
     ${discount ? html`<div class="cart-total cart-total--sub"><span>Subtotal</span><span>${rupees(sub)}</span></div>
       <div class="cart-total cart-total--save"><span>Mix & Save ${deal.percent}%</span><span>−${rupees(discount)}</span></div>` : ''}
-    <div class="cart-total"><span>Total (${count()} items)</span><strong>${rupees(sub - discount)}</strong></div>
+    <div id="drawer-money"><div class="cart-total"><span>Total (${count()} items)</span><strong>${rupees(sub - discount)}</strong></div></div>
     <p class="muted cart-note">Cash on Delivery or Pay at Shop. Delivery free in Muzaffarnagar.</p>
     <a class="btn btn--gold btn--lg btn--block place-btn" href="#/checkout" data-close-drawer>Place Order 🪔</a>`;
+}
+
+/** Replace the estimate with the server's price (deals, Jodi combos, Mix & Save, coupon). */
+async function refreshDrawerPrice() {
+  const p = await priceCart();
+  const box = $('#drawer-money');
+  if (!p || !box) return;
+  const save = Number(p.deal_discount) + Number(p.combo_discount) + Number(p.mix_discount) + Number(p.coupon?.valid ? p.coupon.discount : 0);
+  box.innerHTML = html`
+    ${Number(p.deal_discount) ? html`<div class="cart-total cart-total--save"><span>⏰ Last-hour deals</span><span>−${rupees(p.deal_discount)}</span></div>` : ''}
+    ${Number(p.combo_discount) ? html`<div class="cart-total cart-total--save"><span>🥨 ${(p.combos || []).map((c) => c.name).join(', ')}</span><span>−${rupees(p.combo_discount)}</span></div>` : ''}
+    ${p.coupon?.valid && Number(p.coupon.discount) ? html`<div class="cart-total cart-total--save"><span>🎟️ ${p.coupon.code}</span><span>−${rupees(p.coupon.discount)}</span></div>` : ''}
+    <div class="cart-total"><span>Total (${count()} items)${save ? html` <small class="muted">· you save ${rupees(save)}</small>` : ''}</span><strong>${rupees(p.total)}</strong></div>`;
+}
+
+async function loadCombo() {
+  const card = $('#combo-card');
+  if (!card) return;
+  const picks = await comboPicks(sweetIdsInCart(), 1).catch(() => []);
+  if (!$('#combo-card')) return;
+  if (!picks.length) { card.hidden = true; return; }
+  $('#combo-list').innerHTML = comboHTML(picks);
+  card.hidden = false;
 }
 
 async function loadUpsell() {
@@ -180,6 +213,8 @@ export function initCartDrawer() {
     if (!isCartOpen()) { lastUpsellHTML = ''; return; }
     render();
     loadUpsell();          // debounced; refreshes picks for the new cart
+    loadCombo();
+    refreshDrawerPrice();
   };
   store.on('cart', onChange);
   store.on('boxes', onChange);

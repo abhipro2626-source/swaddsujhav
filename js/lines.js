@@ -98,6 +98,67 @@ export const LINES = {
     'Hmm... soch raha haan tuhade layi ki best rahegi...',
     'Ek minute ji, thaali vich nazar maar reha haan...',
   ],
+
+  // ---------------------------------------------------------------- Feature Pack 2
+  taaza: [
+    'Abhi abhi taaza {sweet} aaya hai ji, garam garam!',
+    'Bhatti ton seedha — {sweet} bilkul taaza bani hai!',
+    '{sweet} hune hune bani ji, khushboo hi kaafi hai!',
+  ],
+  combo: [
+    'Meetha ho gaya, ab thoda namkeen bhi ho jaaye? {sweet} de naal {added}, kya baat hai!',
+    'Meethe ke baad {added} — balance bhi, swaad bhi!',
+    '{sweet} te {added} di jodi — mehmaan vi khush, tussi vi!',
+  ],
+  deal_soon: [
+    'Thodi der vich last-hour deals shuru hone wali ne ji — nazar rakhna!',
+  ],
+  deal_live: [
+    'Dukaan band hone wali hai ji, taaza mithai {pct}% kam daam vich... jaldi karo!',
+    'Last-hour deal chal rahi hai — {pct}% off, bas kuch der layi!',
+  ],
+  scratch_win: [
+    'Wah ji wah! Tussi jeet gaye — {prize}!',
+    'Lo ji, kismat chamak gayi — {prize}! Agli baar mooh mitha sasta!',
+  ],
+  scratch_lose: [
+    'Koi gal nahi ji, agli baar pakka!',
+    'Is baar na sahi — mithaas toh har baar milegi ji!',
+  ],
+  festival_book: [
+    '{fest} aa raha hai ji! Pehle hi book kar lo, line vich nahi lagna padega.',
+    '{fest} di mithai abhi book karo — slot full hone ton pehle!',
+  ],
+  preorder_done: [
+    'Booking pakki ji! {fest} wale din taaza bana ke rakhaange.',
+  ],
+  hot_alert: [
+    'Kadhai se seedhi garam {sweet} nikal rahi hai ji! Jaldi aao!',
+    'Garma-garam {sweet} — {mins} minute vich ready! Rakh doon tuhade layi?',
+  ],
+  hot_reserved: [
+    'Rakh di ji! {grams} g garam {sweet} tuhade naam — 30 minute vich aa jaana.',
+  ],
+  gift_plan: [
+    '{name} layi {sweet} — pyaar bhi, sehat bhi!',
+    'Saare rishtedaaran da dabba tayyar ji — budget vich, sab di pasand naal!',
+  ],
+  gift_over: [
+    'Budget thoda upar chala gaya ji — ek dabba chhota kar dein?',
+  ],
+  bhooli_found: [
+    'Mil gayi ji! Yeh thi... {sweet}!',
+    'Pehchaan liya! Tussi {sweet} di gal kar rahe si!',
+  ],
+  bhooli_ask: [
+    'Ek sawaal ji — {q}',
+  ],
+  bhooli_none: [
+    'Hmm, thodi mushkil hai ji. Ye teen sabse kareeb ne — ya dukaan nu bhej do, hum dhoond ke batayenge!',
+  ],
+  fresh_batch_owner: [
+    'Taaza batch darj ho gaya ji — sab de phone te dikh gaya!',
+  ],
 };
 
 // Fixed pairings Paaji loves to mention.
@@ -124,4 +185,11 @@ export function pickLine(trigger, vars = {}, override = null) {
 
 export function fill(text, vars = {}) {
   return String(text).replace(/\{(\w+)\}/g, (m, k) => (vars[k] != null ? vars[k] : ''));
+}
+
+/** Paaji says a line from the bank (caption always shown; voice respects mute). */
+export function paajiSay(trigger, vars = {}, opts = {}) {
+  const text = pickLine(trigger, vars);
+  if (text) document.dispatchEvent(new CustomEvent('ss:say', { detail: { text, mood: opts.mood || 'talk', priority: opts.priority, group: opts.group } }));
+  return text;
 }

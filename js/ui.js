@@ -102,7 +102,7 @@ export function openModal({ title = '', content = '', size = 'md', onClose, clas
       <div class="modal__body"></div>
     </div>`;
   const body = wrap.querySelector('.modal__body');
-  if (typeof content === 'string') body.innerHTML = content; else if (content) body.append(content);
+  if (typeof content === 'string' || content instanceof String) body.innerHTML = String(content); else if (content) body.append(content);
   root.appendChild(wrap);
   document.body.classList.add('has-modal');
   requestAnimationFrame(() => wrap.classList.add('is-open'));

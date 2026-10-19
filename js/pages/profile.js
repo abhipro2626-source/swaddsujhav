@@ -9,6 +9,7 @@ import { openQuiz } from '../quiz.js';
 import { loadCatalog, getById, CATEGORY_LABELS } from '../catalog.js';
 import { favIds } from '../favorites.js';
 import { sweetCard } from '../cards.js';
+import { myCoupons, couponUsable, setCoupon } from '../pricing.js';
 
 export const STATUS_STEPS = [
   { key: 'placed', label: 'Placed', emoji: '🧾' },
@@ -22,7 +23,9 @@ export function tracker(status, fulfilment = 'delivery') {
     ? [STATUS_STEPS[0], STATUS_STEPS[1], { key: 'out_for_delivery', label: 'Ready for pickup', emoji: '🛍️' }, { key: 'delivered', label: 'Picked up', emoji: '🎉' }]
     : STATUS_STEPS;
   if (status === 'cancelled') return html`<p class="chip chip--pink">Cancelled</p>`;
-  const idx = steps.findIndex((s) => s.key === status);
+  // Pre-orders have a "ready" step: ready for pickup, or packed and waiting for the rider.
+  const key = status === 'ready' ? (fulfilment === 'pickup' ? 'out_for_delivery' : 'packing') : status;
+  const idx = steps.findIndex((s) => s.key === key);
   return html`<ol class="tracker" aria-label="Order status: ${steps[idx]?.label || status}">
     ${steps.map((s, i) => html`<li class="tracker__step ${i <= idx ? 'is-done' : ''} ${i === idx ? 'is-current' : ''}"
        ${i === idx ? raw('aria-current="step"') : ''}><span class="tracker__dot" aria-hidden="true">${s.emoji}</span><span>${s.label}</span></li>`)}
@@ -97,6 +100,13 @@ export async function renderProfile(view) {
         </div>` : html`<p class="muted">Take the 30-second Mithai Taste Quiz so Paaji can suggest sweets you'll love.</p>`}
     </section>
 
+    <section class="panel" aria-labelledby="coupon-title">
+      <header class="panel__head"><h2 id="coupon-title">🎟️ Mere Coupons</h2>
+        <button type="button" class="btn btn--sm" data-alerts>🔥 Garam alert settings</button></header>
+      <div id="coupon-slot"><p class="muted">Loading…</p></div>
+      <p class="muted small">Win coupons on the Deepawali scratch card after every order. <a href="#/festivals">Festival pre-orders</a> · <a href="#/gift-planner">Gift planner</a></p>
+    </section>
+
     <section class="panel" aria-labelledby="orders-title">
       <header class="panel__head"><h2 id="orders-title">📦 ${t('orders')}</h2></header>
       ${orders?.length ? html`<ul class="orders">${orders.map((o) => orderCard(o))}</ul>`
@@ -118,7 +128,22 @@ export async function renderProfile(view) {
     </section>
   </div>`;
 
+  myCoupons().then((list) => {
+    const slot = view.querySelector('#coupon-slot');
+    if (!slot) return;
+    slot.innerHTML = list.length ? html`<ul class="coupon-list">${list.map((c) => {
+      const ok = couponUsable(c);
+      return html`<li class="coupon-ticket ${ok ? '' : 'is-used'}"><span aria-hidden="true">🎟️</span>
+        <div><code>${c.code}</code><p class="small" style="margin:0">${c.label}${Number(c.min_order) ? ` · above ₹${Number(c.min_order)}` : ''}</p>
+          <p class="muted small" style="margin:0">${c.used_at ? 'Used' : ok ? `Valid till ${new Date(c.expires_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}` : 'Expired'}</p></div>
+        ${ok ? html`<button type="button" class="btn btn--gold btn--sm" data-use="${c.code}">Use</button>` : ''}</li>`;
+    })}</ul>` : html`<p class="muted">No coupons yet — scratch the card after your next order!</p>`;
+  }).catch(() => {});
+
   view.addEventListener('click', async (e) => {
+    const use = e.target.closest('[data-use]');
+    if (use) { setCoupon(use.dataset.use); toast(`${use.dataset.use} lag gaya — checkout pe discount dikhega.`, 'success'); return; }
+    if (e.target.closest('[data-alerts]')) { const { openAlertSettings } = await import('../hotalert.js'); openAlertSettings(); return; }
     if (e.target.closest('[data-logout]')) {
       await signOut();
       toast('Logged out. Phir milenge ji!', 'success');

@@ -7,8 +7,44 @@ import { store } from './state.js';
 import { getById, loadCatalog } from './catalog.js';
 import { sweetIdsInCart } from './cart.js';
 
-// Weights are explained in README → "How recommendations work".
-export const WEIGHTS = { taste: 0.40, together: 0.25, popularity: 0.15, new: 0.10, occasion: 0.10 };
+import { CONFIG } from './feature-config.js';
+import { freshnessSignal, dealSignal, dealFor, freshFor } from './live.js';
+import { getContext, contextFor } from './context.js';
+
+// One score formula (README → "How recommendations work"; owner-editable in app_settings.reco_weights):
+//   score = 0.35·taste + 0.20·bought_together + 0.10·popularity + 0.10·new + 0.08·occasion
+//         + 0.07·freshness + 0.06·context + 0.04·deal
+// The ML server / SQL rank the first five signals; the browser adds the three live
+// ones (fresh batches, weather/time, last-hour deals) that change during the day.
+export const WEIGHTS = CONFIG.reco_weights;
+
+/** Re-rank with the live signals and explain the winner in plain words. */
+async function withLiveSignals(out, { keepNamkeen = false } = {}) {
+  const w = CONFIG.reco_weights;
+  const live = (w.freshness || 0) + (w.context || 0) + (w.deal || 0);
+  const ctx = await getContext().catch(() => null);
+  const n = out.items.length || 1;
+  const scored = out.items
+    .filter((s) => keepNamkeen || s.product_type !== 'namkeen')
+    .map((s, i) => {
+      const base = 1 - i / n;                                   // server rank → 0–1
+      const f = freshnessSignal(s.id);
+      const c = contextFor(s, ctx);
+      const d = dealSignal(s.id);
+      const parts = { fresh: (w.freshness || 0) * f, context: (w.context || 0) * c.signal, deal: (w.deal || 0) * d };
+      const score = (1 - live) * base + parts.fresh + parts.context + parts.deal;
+      const top = Object.entries(parts).sort((a, b) => b[1] - a[1])[0];
+      let reason = out.reasons.get(s.id);
+      if (top[1] >= 0.03) {
+        if (top[0] === 'fresh' && freshFor(s.id)) reason = { text: 'Aaj ka taaza', kind: 'new' };
+        if (top[0] === 'context' && c.reason) reason = { text: c.reason, kind: 'occasion' };
+        if (top[0] === 'deal' && dealFor(s.id)) reason = { text: `${dealFor(s.id).percent}% last-hour deal`, kind: 'popular' };
+      }
+      return { s, score, reason };
+    })
+    .sort((a, b) => b.score - a.score);
+  return { items: scored.map((x) => x.s), reasons: new Map(scored.map((x) => [x.s.id, x.reason])) };
+}
 
 let apiDown = false;          // remember for the session once the ML API is unreachable
 const cache = new Map();      // short-lived memo for detail rows
@@ -51,19 +87,21 @@ function hydrate(rows, limit) {
 export async function forUser({ limit = 12, occasion = null, mood = null } = {}) {
   await loadCatalog();
   const exclude = sweetIdsInCart();
-  const ml = await api('recommend', { limit, occasion, mood, exclude });
-  if (ml?.items?.length) return hydrate(ml.items, limit);
+  const ml = await api('recommend', { limit: limit + 6, occasion, mood, exclude });
+  if (ml?.items?.length) return withLiveSignals(hydrate(ml.items, limit + 6)).then((r) => cut(r, limit));
 
   // Precomputed ML picks (written by the Python job) for signed-in users.
   if (store.get('user') && !occasion && !mood) {
     const { data } = await supabase.from('user_recos').select('sweet_id, reason, reason_kind').order('score', { ascending: false }).limit(limit * 2);
     const fresh = (data || []).filter((r) => !exclude.includes(r.sweet_id));
-    if (fresh.length >= Math.min(6, limit)) return hydrate(fresh, limit);
+    if (fresh.length >= Math.min(6, limit)) return withLiveSignals(hydrate(fresh, limit + 6)).then((r) => cut(r, limit));
   }
-  const { data, error } = await supabase.rpc('recommend_for_user', { p_limit: limit, p_occasion: occasion, p_exclude: exclude });
+  const { data, error } = await supabase.rpc('recommend_for_user', { p_limit: limit + 6, p_occasion: occasion, p_exclude: exclude });
   if (error) throw error;
-  return hydrate(data, limit);
+  return withLiveSignals(hydrate(data, limit + 6)).then((r) => cut(r, limit));
 }
+
+const cut = (r, limit) => ({ items: r.items.slice(0, limit), reasons: r.reasons });
 
 /** Cart upsell: "Paaji kehte hain: ye bhi le lo!" */
 export async function upsell(limit = 3) {

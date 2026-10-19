@@ -4,6 +4,7 @@ import { t } from '../i18n.js';
 import { loadCatalog, filterSweets, search, SORTS, CATEGORY_LABELS, REGIONS, OCCASIONS, sweetsInRegion } from '../catalog.js';
 import { sweetCard } from '../cards.js';
 import { logEvent } from '../cart.js';
+import { freshFor, dealFor, startLive } from '../live.js';
 
 const PAGE = 24;
 const DIETS = ['sugar_free', 'vegan', 'jain', 'eggless', 'gluten_free'];
@@ -25,6 +26,8 @@ function readState(params) {
     diet: list('diet'),
     price: params.get('price') || '',
     flag: params.get('flag') || '',
+    fresh: params.get('fresh') === '1',
+    deal: params.get('deal') === '1',
     sort: params.get('sort') || 'popular',
     page: Number(params.get('page') || 1),
   };
@@ -40,6 +43,8 @@ function writeState(st) {
   if (st.diet.length) p.set('diet', st.diet.join(','));
   if (st.price) p.set('price', st.price);
   if (st.flag) p.set('flag', st.flag);
+  if (st.fresh) p.set('fresh', '1');
+  if (st.deal) p.set('deal', '1');
   if (st.sort !== 'popular') p.set('sort', st.sort);
   const qs = p.toString();
   history.replaceState(null, '', `#/catalog${qs ? `?${qs}` : ''}`);
@@ -102,6 +107,8 @@ export async function renderCatalog(app, params) {
       category: st.category, occasion: st.occasion || null, sweetness: st.sweetness, diet: st.diet,
       minPrice: pr?.min, maxPrice: pr?.max, flag: st.flag || null,
     });
+    if (st.fresh) list = list.filter((s) => freshFor(s.id));
+    if (st.deal) list = list.filter((s) => dealFor(s.id));
     if (st.q) {
       const found = search(list, st.q);
       return st.sort === 'popular' ? found : found.sort(SORTS[st.sort]);
@@ -117,6 +124,8 @@ export async function renderCatalog(app, params) {
   function renderFilters() {
     filtersEl.innerHTML = html`
       <div class="filters__inner">
+        <div class="filter-group"><h3>Aaj ke liye</h3><div class="chips">
+          ${chip('fresh', '1', '🔥 Sirf taaza', st.fresh)}${chip('deal', '1', '⏰ Last-hour deals', st.deal)}</div></div>
         <div class="filter-group"><h3>${t('f_category')}</h3><div class="chips">
           ${Object.entries(CATEGORY_LABELS).map(([k, l]) => chip('category', k, l, st.category.includes(k)))}</div></div>
         <div class="filter-group"><h3>${t('f_diet')}</h3><div class="chips">
@@ -139,6 +148,8 @@ export async function renderCatalog(app, params) {
     $('#catalog-count', app).textContent = t('results', { n: list.length }) + (st.q ? ` · "${st.q}"` : '');
     const active = [
       st.q && ['q', st.q, `🔎 ${st.q}`],
+      st.fresh && ['fresh', '1', '🔥 Sirf taaza'],
+      st.deal && ['deal', '1', '⏰ Deals'],
       st.flag && ['flag', st.flag, { new: '✨ New', festive: '🪔 Deepawali', world: '🌍 World', bestseller: '🔥 Bestseller' }[st.flag] || st.flag],
       ...st.category.map((c) => ['category', c, CATEGORY_LABELS[c]]),
       ...st.diet.map((d) => ['diet', d, t(`d_${d}`)]),
@@ -169,7 +180,9 @@ export async function renderCatalog(app, params) {
     const c = e.target.closest('[data-group]');
     if (c) {
       const { group, value } = c.dataset;
-      if (['category', 'diet'].includes(group)) {
+      if (group === 'fresh' || group === 'deal') {
+        st[group] = !st[group];
+      } else if (['category', 'diet'].includes(group)) {
         const arr = st[group];
         st[group] = arr.includes(value) ? arr.filter((x) => x !== value) : [...arr, value];
       } else if (group === 'sweetness') {
@@ -185,13 +198,13 @@ export async function renderCatalog(app, params) {
     if (r) {
       const { remove: g, value } = r.dataset;
       if (Array.isArray(st[g])) st[g] = st[g].filter((x) => String(x) !== value);
-      else st[g] = '';
+      else st[g] = typeof st[g] === 'boolean' ? false : '';
       if (g === 'q') { const si = $('#search-input'); if (si) si.value = ''; }
       apply();
       return;
     }
     if (e.target.closest('[data-clear]')) {
-      Object.assign(st, { q: '', category: [], region: '', occasion: '', sweetness: [], diet: [], price: '', flag: '' });
+      Object.assign(st, { q: '', category: [], region: '', occasion: '', sweetness: [], diet: [], price: '', flag: '', fresh: false, deal: false });
       apply();
       return;
     }

@@ -9,10 +9,10 @@ import { tracker } from './profile.js';
 
 const TABS = [
   ['dashboard', '📊', 'Dashboard'], ['orders', '📦', 'Orders'], ['inventory', '🏷️', 'Inventory'],
-  ['catalog', '🍬', 'Catalog'], ['import', '📥', 'CSV import'], ['customers', '👥', 'Customers'], ['paaji', '🧔🏽', 'Paaji & shayari'],
+  ['catalog', '🍬', 'Catalog'], ['import', '📥', 'CSV import'], ['customers', '👥', 'Customers'], ['paaji', '🧔🏽', 'Paaji & shayari'], ['settings', '⚙️', 'Feature settings'],
 ];
-const STATUSES = ['placed', 'packing', 'out_for_delivery', 'delivered', 'cancelled'];
-const STATUS_LABEL = { placed: 'Placed', packing: 'Being packed', out_for_delivery: 'Out for delivery', delivered: 'Delivered', cancelled: 'Cancelled' };
+const STATUSES = ['placed', 'packing', 'ready', 'out_for_delivery', 'delivered', 'cancelled'];
+const STATUS_LABEL = { placed: 'Placed', packing: 'Being packed', ready: 'Ready (pre-order)', out_for_delivery: 'Out for delivery', delivered: 'Delivered', cancelled: 'Cancelled' };
 const CATEGORIES = Object.keys(CATEGORY_LABELS);
 const err = (e) => toast(e?.message || String(e), 'error', 5000);
 
@@ -22,7 +22,7 @@ export async function renderAdmin(view, tab) {
   <div class="page page--admin container">
     <header class="admin-head">
       <h1 class="page-title">🛠️ Admin · Swaad Sujhaav</h1>
-      <a class="link-btn" href="#/">← Back to shop</a>
+      <div class="row-actions"><a class="btn btn--festive btn--sm" href="#/owner">📈 Owner dashboard</a><a class="link-btn" href="#/">← Back to shop</a></div>
     </header>
     <nav class="admin-tabs" aria-label="Admin sections">
       ${TABS.map(([k, e, l]) => html`<a href="#/admin/${k}" class="admin-tab ${k === tab ? 'is-active' : ''}" ${k === tab ? raw('aria-current="page"') : ''}>
@@ -32,7 +32,7 @@ export async function renderAdmin(view, tab) {
   </div>`;
   const body = $('#admin-body', view);
   try {
-    await { dashboard, orders, inventory, catalog, import: importTab, customers, paaji }[tab](body);
+    await { dashboard, orders, inventory, catalog, import: importTab, customers, paaji, settings }[tab](body);
   } catch (e) {
     console.error(e);
     body.innerHTML = emptyState({ icon: '⚠️', title: 'Could not load this section', text: e.message });
@@ -590,4 +590,59 @@ async function paaji(body) {
     if (s && confirm('Delete this shayari?')) { const { error } = await supabase.from('shayari').delete().eq('id', s.dataset.shDel); if (error) err(error); else draw().catch(err); }
   });
   await draw();
+}
+
+// ------------------------------------------------------------------ feature settings (Feature Pack 2)
+// Every rule the new features use is editable here: numbers (app_settings), festivals
+// (confirm lunar dates), scratch prizes, Jodi Boxes, namkeen pairings, weather/time rules,
+// and the "Hum dhoond ke batayenge" requests from Bhooli Hui Mithai.
+const EDITABLE = {
+  festivals: { title: '🗓️ Festivals', order: 'starts_on', cols: [['name', 'text'], ['starts_on', 'date'], ['lead_days', 'number'], ['cutoff_hours', 'number'], ['demand_multiplier', 'number'], ['needs_confirmation', 'bool'], ['active', 'bool']] },
+  scratch_prizes: { title: '🪔 Scratch prizes', order: 'id', cols: [['label', 'text'], ['kind', 'text'], ['value', 'number'], ['min_order', 'number'], ['weight', 'number'], ['cost_estimate', 'number'], ['active', 'bool']] },
+  jodi_boxes: { title: '🥨 Jodi Boxes', order: 'sort_order', cols: [['name', 'text'], ['description', 'text'], ['discount_percent', 'number'], ['active', 'bool']] },
+  combo_rules: { title: '🤝 Mithai + namkeen rules', order: 'id', cols: [['mithai_category', 'text'], ['reason', 'text'], ['weight', 'number'], ['active', 'bool']] },
+  context_rules: { title: '🌦️ Weather & time rules', order: 'priority', cols: [['condition', 'text'], ['banner_title', 'text'], ['paaji_line', 'text'], ['boost', 'number'], ['active', 'bool']] },
+  sweet_requests: { title: '🕵️ "Hum dhoond ke batayenge" requests', order: 'id', cols: [['description', 'ro'], ['contact', 'ro'], ['status', 'text']] },
+};
+
+async function settings(body) {
+  const [{ data: rows, error }, ...tables] = await Promise.all([
+    supabase.from('app_settings').select('*').order('key'),
+    ...Object.entries(EDITABLE).map(([t, c]) => supabase.from(t).select('*').order(c.order, { ascending: t !== 'context_rules' }).limit(60)),
+  ]);
+  if (error) throw error;
+  const data = Object.fromEntries(Object.keys(EDITABLE).map((t, i) => [t, tables[i].data || []]));
+  const cell = (t, r, [k, type]) => {
+    if (type === 'ro') return html`<td>${r[k] ?? ''}</td>`;
+    if (type === 'bool') return html`<td><input type="checkbox" data-cell="${t}:${r.id}:${k}" ${r[k] ? 'checked' : ''} aria-label="${k}"></td>`;
+    return html`<td><input type="${type}" data-cell="${t}:${r.id}:${k}" value="${r[k] ?? ''}" aria-label="${k}" ${type === 'number' ? raw('step="any"') : ''}></td>`;
+  };
+  body.innerHTML = html`
+    <p class="muted">All Feature Pack rules live here. Changes save as soon as you leave a field. Prices are always recalculated in the database.</p>
+    <p><a class="btn btn--festive" href="#/owner">📈 Open the owner dashboard (Kal Kitna Banana Hai?)</a></p>
+    <section class="panel"><h2>⚙️ Numbers & rules</h2>
+      <div class="admin-grid">${rows.map((r) => html`<label class="field"><span><strong>${r.label || r.key}</strong> <small class="muted">${r.description}</small></span>
+        <textarea data-setting="${r.key}" rows="4" spellcheck="false">${JSON.stringify(r.value, null, 1)}</textarea></label>`)}</div></section>
+    ${Object.entries(EDITABLE).map(([t, c]) => html`<section class="panel"><h2>${c.title}</h2>
+      <div class="table-wrap"><table class="plan-table"><thead><tr>${c.cols.map(([k]) => html`<th>${k.replace(/_/g, ' ')}</th>`)}</tr></thead>
+      <tbody>${data[t].map((r) => html`<tr>${c.cols.map((col) => cell(t, r, col))}</tr>`)}</tbody></table></div>
+      ${t === 'festivals' ? html`<p class="muted small">Lunar dates marked "needs confirmation" — check the panchang and untick when confirmed.</p>` : ''}</section>`)}`;
+
+  body.addEventListener('change', async (e) => {
+    const s = e.target.closest('[data-setting]');
+    if (s) {
+      let value;
+      try { value = JSON.parse(s.value); } catch { toast('That is not valid JSON — check the commas and quotes.', 'error', 4500); return; }
+      const { error: er } = await supabase.from('app_settings').update({ value, updated_at: new Date().toISOString() }).eq('key', s.dataset.setting);
+      if (er) err(er); else toast(`Saved ${s.dataset.setting}`, 'success', 1600);
+      return;
+    }
+    const c = e.target.closest('[data-cell]');
+    if (c) {
+      const [t, id, k] = c.dataset.cell.split(':');
+      const v = c.type === 'checkbox' ? c.checked : c.type === 'number' ? Number(c.value) : c.value;
+      const { error: er } = await supabase.from(t).update({ [k]: v }).eq('id', id);
+      if (er) err(er); else toast('Saved', 'success', 1200);
+    }
+  });
 }

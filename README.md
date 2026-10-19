@@ -35,6 +35,55 @@ reorder, favourites, sugar-free/vegan/Jain/gluten-free filters, reduced-motion s
 
 ---
 
+## 🎁 Feature Pack 2 — ten things no other mithai shop app does
+
+| # | Feature | Where | What it does |
+|---|---|---|---|
+| 1 | **Kal Kitna Banana Hai?** owner dashboard | `#/owner` (admin) | Predicts tomorrow's kg per sweet (weekday history × trend × festival × weather + pre-orders), says *how much to make* with plain-word reasons, accuracy chart, waste tracker, kitchen print view, live controls. |
+| 2 | **Deepawali Scratch Card** | order success screen | Canvas scratch (touch + mouse, "Tap to reveal" for keyboard). Prize chosen **in Postgres** at order time from owner-weighted prizes within a daily budget; revealed only when scratched; becomes a coupon in *Mere Coupons*. |
+| 3 | **Mithai + Namkeen combos** | sweet page, cart, home | 42 namkeen with photos, owner pairing rules + bought-together + your spice taste (`suggest_combos`). **Jodi Boxes** get an automatic combo discount at checkout. |
+| 4 | **Festival pre-orders** | `#/festivals` | 17 festivals for 12 months (lunar dates flagged *to be confirmed*), countdowns, reminders, slot booking with capacity locked inside `place_order`, cancel before cutoff. |
+| 5 | **Aaj ka Taaza** | cards, home row, "Sirf taaza" filter, sweet page | Owner logs a fresh batch in seconds; every open phone shows "🔥 Aaj ka Taaza · Bana: 2 ghante pehle" instantly (Realtime). |
+| 6 | **Weather & time-aware Paaji** | home banner | Free Open-Meteo weather (no key), city picker or "use my location" (never required), time of day, festival eve. Owner-editable rules. Demo: `?demo=cold|hot|rainy`, `?demo=off`. |
+| 7 | **Last-hour deals** | home strip, cards, catalog filter | Short-shelf stock gets 10% → 20% → 30% off as closing nears, plus owner manual deals with a kg limit. Prices re-checked at order time; if a deal ended, checkout shows the new total first. |
+| 8 | **Rishtedaar Gift Planner** | `#/gift-planner` | One budget, many relatives: preferences (sugar-free, nut allergy, Jain, no milk, likes), importance, household size → Paaji builds a box each with reasons, swaps, gift-card shayari, one order. Dietary rules enforced again in Postgres. |
+| 9 | **Bhooli Hui Mithai** | `#/bhooli-mithai` | Describe a sweet you can't name ("gol si, chashni mein doobi…") → Hinglish dictionary → `identify_sweet` (traits + `pg_trgm` + full-text) → Akinator-style questions → big reveal. **20/20** on the test set ([docs](docs/bhooli-mithai-tests.md)). |
+| 10 | **Garam Jalebi Alert** | owner dashboard → everyone | "Garam batch aa raha hai" → live banner with countdown and *kitna bacha*, "Mere liye rakh lo" reservation (oversell-proof), optional Web Push via an Edge Function, quiet hours + daily cap. |
+
+**How they connect:** pre-orders, fresh batches, weather and festivals feed the prediction · slow movers → "Create last-hour deal" ·
+hot batches create fresh batches · combos appear in the cart, sweet pages and the gift planner · scratch coupons work on regular,
+pre-order and gift-plan orders · a Bhooli Hui Mithai result can go into the gift plan in one tap.
+
+### Feature Pack 2 setup
+1. **Database:** run `supabase/migrations/002_feature_pack.sql` (idempotent), then the *Feature Pack 2* part at the end of
+   `supabase/seed.sql` (also in `supabase/seed_feature_pack.sql`). Realtime is enabled for `batches`, `hot_batches`, `deals`,
+   `sweet_variants` and `preorder_slots` by the migration.
+2. **Owner settings:** Admin → **⚙️ Feature settings** edits every number (deal window, prize budget, weights, festival dates…).
+   The same defaults are in `js/feature-config.js`.
+3. **Web Push (optional):** generate keys with `npx web-push generate-vapid-keys`, put the public key in `js/push.js`
+   and `supabase/functions/hot-alert-push/index.ts`, store the private key once in SQL
+   (`insert into private.push_keys (name, value) values ('vapid_private', '…')`), and deploy the function:
+   `supabase functions deploy hot-alert-push`. Without it, alerts still arrive in-app through Realtime.
+4. **Tests:** `node tests/bhooli-tests.mjs --write` re-runs the Bhooli Hui Mithai descriptions against the live database.
+
+### 📈 How "Kal Kitna Banana Hai?" predicts (for judges)
+For each sweet: **base** = average kg sold on the same weekday over the last 8 weeks (falls back to the daily average, then the
+category average) · **trend** = last 7 days ÷ previous 7 days, kept between 0.7× and 1.3× · **festival** = the festival calendar's
+multiplier when one is within its booking window (full strength 0–2 days before) · **weather** = tomorrow's Open-Meteo forecast
+(cold → halwa up, hot → kulfi up), kept between 0.85× and 1.15× · **pre-orders** booked for that day are added on top.
+`predicted = base × trend × festival × weather + pre-orders`, range = ± one standard deviation, and
+`make = predicted − counter stock + safety buffer`, rounded up to 0.5 kg. Every multiplier that isn't ~1 becomes a reason
+("Dussehra is tomorrow", "Saturday is usually 40% busier", "12 kg pre-ordered"). The chart compares each past day with the
+prediction made from the 4 weeks before it.
+
+### 🕵️ How Bhooli Hui Mithai matches (for judges)
+Every sweet has describable traits (shape, colours, syrup, filling, fried, served warm/cold, base, flavours, aliases).
+`js/describe-dictionary.js` turns everyday words — *gol, chashni, naram, tali hui, kesar, peeli, Kolkata, shaadi* and common
+misspellings — into traits. `identify_sweet()` in Postgres adds points for each match (syrup and base count most), takes points
+away for contradictions (described crunchy but the sweet is soft), adds region/occasion matches, fuzzy name matching with
+`pg_trgm` on the words the dictionary didn't explain ("woh *chum* wali") and full-text search on stories. If the top two are
+close, `next_question()` picks the yes/no question that best separates them (max 3).
+
 ## 🏗️ Architecture
 
 ```mermaid
@@ -124,9 +173,12 @@ where id = (select id from auth.users where email = 'you@example.com');
 Open **Profile → 🛠️ Admin panel** (or `#/admin`). Admins can promote others from the Customers tab.
 
 ### Demo accounts (test data only)
-`priya.demo@`, `rohan.demo@`, `meera.demo@` (sugar-free), `arjun.demo@` (world desserts),
-`simran.demo@`, `kavya.demo@` and `admin@` — all `@swaadsujhav.test`, password `SwaadDemo#2026`
-(defined in `seed/build_seed.py`). Delete or change them before going live.
+- **Customer:** `priya.demo@swaadsujhav.test` — has a ready 5-person Rishtedaar gift plan (₹4,000) and coupon `SSDEMO10`.
+  Others: `rohan.demo@`, `meera.demo@` (sugar-free), `arjun.demo@` (world desserts), `simran.demo@`, `kavya.demo@` — all `@swaadsujhav.test`.
+- **Owner:** your own account with `is_admin = true` (see above). `admin@swaadsujhav.test` exists as a test login; make it an
+  owner only on a private demo copy (`update public.profiles set is_admin = true where id = (select id from auth.users where email = 'admin@swaadsujhav.test')`)
+  — never on the public shop, because this password is in the README.
+- Password for the test accounts: `SwaadDemo#2026` (defined in `seed/build_seed.py`). Delete or change them before going live.
 
 ---
 
@@ -143,13 +195,17 @@ Paaji looks at every sweet in four ways and mixes the scores:
 4. **You** — your taste-quiz answers, favourites and past orders.
 
 ```
-score = 0.40 × your taste   + 0.25 × people like you
-      + 0.15 × popularity   + 0.10 × new arrival   + 0.10 × occasion (Deepawali season)
+score = 0.35 × your taste      + 0.20 × bought together / people like you
+      + 0.10 × popularity      + 0.10 × new arrival   + 0.08 × occasion
+      + 0.07 × freshness (Aaj ka Taaza)  + 0.06 × weather/time context  + 0.04 × last-hour deal
 ```
+The first five come from the ML server / SQL; the browser adds the three live signals that change during the day
+(`js/recommend.js`), and the winning signal becomes the reason on the card ("Kyunki bahar 12°C hai", "Aaj ka taaza").
+Weights live in one place: `app_settings.reco_weights` (owner-editable) mirrored in `js/feature-config.js` and `ml.py`.
 
 Rules on top: never suggest what's already in your cart, **always respect diet choices** (a sugar-free
 customer only ever sees sugar-free sweets), keep variety (max 2 of a kind in a row), and explain every
-pick. Weights live in one place (`backend/swaad_sujhav/ml.py` and `public.reco_weights()`).
+pick.
 
 ---
 

@@ -8,7 +8,8 @@ let bySlug = new Map();
 const COLUMNS = `id, slug, name, name_hi, description, origin_story, region, country, category, base,
   ingredients, sweetness, richness, texture, tags, occasions, is_sugar_free, is_vegan, is_jain,
   is_eggless, is_gluten_free, allergens, price_unit, base_price, rating, rating_count, popularity,
-  is_new, is_festive, in_stock, image_url, image_credit, created_at,
+  is_new, is_festive, in_stock, image_url, image_credit, created_at, product_type, shelf_life_days, aliases,
+  shape, colours, served_temp, key_flavours, has_syrup, has_filling, is_fried, spice_level, taste_tags,
   variants:sweet_variants(id, weight_label, grams, price, stock_qty, sort_order)`;
 
 /** All sweets (with variants). Cached; pass { force: true } to refetch (admin edits). */
@@ -133,7 +134,7 @@ export const SORTS = {
 export const CATEGORY_LABELS = {
   'milk-based': 'Milk-based', 'dry-fruit': 'Dry fruit', 'syrup-soaked': 'Syrup-soaked',
   fried: 'Fried', halwa: 'Halwa', laddoo: 'Laddoo', barfi: 'Barfi', bengali: 'Bengali',
-  baked: 'Baked', world: 'World desserts', steamed: 'Steamed', brittle: 'Chikki & gajak',
+  baked: 'Baked', world: 'World desserts', steamed: 'Steamed', brittle: 'Chikki & gajak', namkeen: '🥨 Namkeen',
 };
 
 // Region tiles for "Shop by Region" and the world map.
