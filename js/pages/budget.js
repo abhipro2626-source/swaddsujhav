@@ -124,7 +124,7 @@ export async function renderBudget(view, params) {
     const diets = [...f.querySelectorAll('[name=diet]:checked')].map((x) => x.value);
     const out = $('#budget-result', view);
     out.innerHTML = html`<p class="muted">Paaji hisaab laga rahe hain…</p>`;
-    say(`${rupees(budget)} vich ${guests} mehmaan? Chalo ji, dekhde haan!`, 'think');
+    say(`${rupees(budget)} mein ${guests} mehmaan? Chaliye ji, dekhte hain!`, 'think');
 
     const all = await loadCatalog();
     let ranked = [];
@@ -140,8 +140,8 @@ export async function renderBudget(view, params) {
 
     const p = plan(candidates, budget, guests);
     if (!p) {
-      out.innerHTML = html`<div class="panel"><p>Is budget vich ${guests} mehmaanan layi thoda mushkil hai ji. Try a bigger budget or fewer guests — even ₹${Math.ceil(guests * 25 / 50) * 50} works for about 1 piece each.</p></div>`;
-      say('Budget thoda tight hai ji, par thoda vadha lo te main kamaal kar dunga!', 'think');
+      out.innerHTML = html`<div class="panel"><p>Is budget mein ${guests} mehmaanon ke liye thoda mushkil hai ji. Try a bigger budget or fewer guests — even ₹${Math.ceil(guests * 25 / 50) * 50} works for about 1 piece each.</p></div>`;
+      say('Budget thoda kam hai ji, par thoda badha lijiye toh main kamaal kar dunga!', 'think');
       return;
     }
     const deal = mixSave(p.lines.length);
@@ -161,7 +161,7 @@ export async function renderBudget(view, params) {
         <p class="muted small">Under budget by ${rupees(budget - (p.cost - discount))}. Piece counts are approximate (about 20 g per piece).</p>
         <button type="button" class="btn btn--gold btn--lg btn--block" data-add-plan>Add all to thaali</button>
       </section>`;
-    say(`Ho gaya ji! ${p.lines.length} kisam di mithai, har mehmaan nu ${p.piecesPerGuest} piece, te ${rupees(budget - (p.cost - discount))} bach vi gaye!`, 'celebrate');
+    say(`Ho gaya ji! ${p.lines.length} tarah ki mithai, har mehmaan ko ${p.piecesPerGuest} piece, aur ${rupees(budget - (p.cost - discount))} bach bhi gaye!`, 'celebrate');
 
     out.querySelector('[data-add-plan]').addEventListener('click', () => {
       let n = 0;

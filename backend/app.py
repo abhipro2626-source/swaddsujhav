@@ -1,4 +1,4 @@
-"""Swaad Sujhaav server.
+"""Mithai Mitra server.
 
     python backend/app.py            # http://localhost:8130
 
@@ -78,7 +78,7 @@ async def lifespan(_: FastAPI):
     await db.close()
 
 
-app = FastAPI(title="Swaad Sujhaav API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="Mithai Mitra API", version="1.0.0", lifespan=lifespan)
 
 # The frontend may be hosted elsewhere (Netlify/Vercel) and call this API.
 app.add_middleware(

@@ -206,7 +206,7 @@ export async function handleCommand(transcript) {
 
   if (/(cart|thaali|thali).*(khol|open|dikha)|open (the )?cart/.test(text)) {
     (await import('./cartDrawer.js')).openCart();
-    say('Lo ji, thaali haazir hai!');
+    say('Lijiye ji, thaali haazir hai!');
     return true;
   }
   if (/diwali night|raat wala|dark mode/.test(text)) { $('#theme-btn')?.click(); return true; }
@@ -241,7 +241,7 @@ export async function handleCommand(transcript) {
   if (!v) v = variants.find((x) => x.weight_label === sweet.price_unit) || variants[0];
   if (!v) { say(`${sweet.name} abhi khatam ho gayi ji, maaf karna.`); return true; }
   if (add(getById(sweet.id), v, qty)) {
-    say(`Ho gaya ji! ${qty} × ${v.weight_label} ${sweet.name} thaali vich.`, 'point');
+    say(`Ho gaya ji! ${qty} × ${v.weight_label} ${sweet.name} thaali mein.`, 'point');
   }
   return true;
 }
@@ -260,7 +260,7 @@ function initMic() {
     rec.maxAlternatives = 1;
     btn.classList.add('is-listening');
     btn.setAttribute('aria-label', 'Listening… tap to stop');
-    document.dispatchEvent(new CustomEvent('ss:say', { detail: { text: 'Bolo ji, main sun raha haan!', mood: 'think', quiet: true } }));
+    document.dispatchEvent(new CustomEvent('ss:say', { detail: { text: 'Boliye ji, main sun raha hoon!', mood: 'think', quiet: true } }));
     let finalText = '';
     rec.onresult = (e) => {
       const r = e.results[e.results.length - 1];

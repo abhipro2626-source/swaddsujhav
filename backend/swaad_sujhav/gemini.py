@@ -12,6 +12,7 @@ rule-based Ask Paaji. The key never leaves the server.
 from __future__ import annotations
 
 import json
+import re
 import logging
 import os
 import time
@@ -32,15 +33,15 @@ BACKUP_MODELS = ["gemini-flash-lite-latest", "gemini-3.8-flash"]   # used when a
 FAST_MODELS = ["gemini-3.1-flash-lite", "gemini-flash-lite-latest"]     # quick jobs (transliteration): no "thinking" delay
 URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
-PERSONA = """You are "Paaji", the warm, proud and kind Punjabi halwai of Swaad Sujhaav, a festive mithai shop in Muzaffarnagar, Uttar Pradesh.
+PERSONA = """You are "Paaji", the warm, proud and kind halwai of Mithai Mitra, a festive mithai shop in Muzaffarnagar, Uttar Pradesh.
 How you talk:
-- Friendly Hinglish with a light Punjabi touch ("ji", "haan ji", "wah ji wah", "chalo ji"). Short: 1–3 sentences, max ~45 words.
+- Friendly, simple Hindi written in Roman letters (Hinglish), polite "aap" form ("ji", "haan ji", "wah ji wah", "chaliye ji", "lijiye", "dekhiye"). Never use Punjabi words (no "tussi", "tuhada", "naal", "vich", "hun", "dasso"). Short: 1–3 sentences, max ~45 words.
 - Respectful and warm; never rude, never make fun of anyone, no stereotypes, no religious or political opinions.
-- Greet ONLY when the situation is a welcome or someone arriving; then say "Jai Shree Ram ji" (never "Sat Sri Akal"). Otherwise jump straight into what you want to say. Write "Deepawali" (never "Diwali") and the shop name as "Swaad Sujhaav".
+- Greet ONLY when the situation is a welcome or someone arriving; then say "Jai Shree Ram ji" (never "Sat Sri Akal"). Otherwise jump straight into what you want to say. Write "Deepawali" (never "Diwali") and the shop name as "Mithai Mitra".
 - Your own original words only — never quote poets, songs or films.
 - Only talk about sweets, the shop, festivals, gifting and ordering. Politely steer other topics back to mithai.
 Hard rules:
-- Recommend ONLY sweets from the CANDIDATES list, using their exact ids. Never invent sweets, prices, stock, offers or delivery promises.
+- Recommend ONLY sweets from the CANDIDATES list, using their exact ids in "picks" — never write ids or numbers like "(id 151)" in the reply text; just say the sweet names. Never invent sweets, prices, stock, offers or delivery promises.
 - Respect diet needs strictly (sugar-free, vegan, Jain, gluten-free, eggless) — only pick candidates that match.
 - If nothing fits, say so kindly and suggest the closest candidate.
 - Shop facts you may use: Mix & Save gives 5% off on 3 different sweets and 10% off on 5+; free Deepawali gift box on orders above Rs 999; Cash on Delivery or Pay at Shop; free delivery in Muzaffarnagar.
@@ -141,6 +142,8 @@ async def chat(client: httpx.AsyncClient, message: str, history: list[dict], can
     out["picks"] = [int(p) for p in out.get("picks", []) if int(p) in allowed][:4]
     out["reply"] = str(out.get("reply", "")).strip()[:400]
     out["reply_hi"] = str(out.get("reply_hi", "")).strip()[:400] or out["reply"]
+    for k in ("reply", "reply_hi"):              # ids belong in "picks", never in what the customer reads/hears
+        out[k] = re.sub(r"\s*[(（]\s*(id|आईडी)\s*[:#]?\s*\d+\s*[)）]", "", out[k], flags=re.I)
     return out
 
 
@@ -154,7 +157,7 @@ async def to_devanagari(client: httpx.AsyncClient, text: str) -> str:
     try:
         out = await _generate(
             client, [{"role": "user", "parts": [{"text": text}]}],
-            "Transliterate this Hinglish/Punjabi sentence into natural Devanagari script for a Hindi text-to-speech voice. "
+            "Transliterate this Hinglish (Roman Hindi) sentence into natural Devanagari script for a Hindi text-to-speech voice. "
             "Keep English brand or dish words that Indians say in English (like 'Mix & Save', 'gift box') readable in Devanagari. "
             "Keep 'Rs' as 'रुपये'. Output only the converted sentence.", None, timeout=12.0,
             models=[*FAST_MODELS, MODEL])
@@ -227,7 +230,7 @@ async def fresh_lines(client: httpx.AsyncClient, moment: str, ctx: dict, n: int 
                  " exactly as written (curly braces, English) wherever that name goes, in BOTH 'roman' and 'hi'. "
                  "Never write a real sweet or person name instead. ") if need else ""
     prompt = (f"Situation: {situation}\nWrite {n} different things Paaji could say right now. Each: ONE short sentence (max 16 words), "
-              "fresh and varied (different openings, different jokes/warmth), natural spoken Hinglish with a light Punjabi touch. "
+              "fresh and varied (different openings, different jokes/warmth), natural spoken Hindi (Roman letters), warm and polite, no Punjabi words. "
               + slot_rule +
               "No hashtags, no emojis, no quotes from songs/films. "
               "For each line give 'roman' (Hinglish in Roman script) and 'hi' (the same line in Devanagari for a Hindi voice).")

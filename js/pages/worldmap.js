@@ -87,6 +87,6 @@ export async function renderWorldMap(view) {
       <header class="row__head"><h2 class="row__title">${tile[1]} ${tile[0]} <small class="muted">· ${sweets.length} sweets</small></h2></header>
       <div class="grid">${sweets.map((s) => sweetCard(s))}</div>`;
     out.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
-    document.dispatchEvent(new CustomEvent('ss:say', { detail: { text: `${tile[0]} di mithaiyan! ${sweets[0] ? `${sweets[0].name} zaroor chakhna ji.` : ''}`, mood: 'point', group: 'map' } }));
+    document.dispatchEvent(new CustomEvent('ss:say', { detail: { text: `${tile[0]} ki mithaiyan! ${sweets[0] ? `${sweets[0].name} zaroor chakhiye ji.` : ''}`, mood: 'point', group: 'map' } }));
   });
 }

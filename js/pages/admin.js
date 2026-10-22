@@ -21,7 +21,7 @@ export async function renderAdmin(view, tab) {
   view.innerHTML = html`
   <div class="page page--admin container">
     <header class="admin-head">
-      <h1 class="page-title">🛠️ Admin · Swaad Sujhaav</h1>
+      <h1 class="page-title">🛠️ Admin · Mithai Mitra</h1>
       <div class="row-actions"><a class="btn btn--festive btn--sm" href="#/owner">📈 Owner dashboard</a><a class="link-btn" href="#/">← Back to shop</a></div>
     </header>
     <nav class="admin-tabs" aria-label="Admin sections">
@@ -309,14 +309,14 @@ function editSweet(s, onDone) {
       variants: f.elements.variants.value.trim(),
       base_price: String(f.elements.variants.value.split(':')[1] || s.base_price),
       price_unit: f.elements.variants.value.split(':')[0]?.trim() || s.price_unit,
-      image_url: photoUrl || s.image_url || '', image_credit: photoUrl ? 'Photo: Swaad Sujhaav' : (s.image_credit || ''),
+      image_url: photoUrl || s.image_url || '', image_credit: photoUrl ? 'Photo: Mithai Mitra' : (s.image_credit || ''),
     };
     for (const k of ['is_sugar_free', 'is_vegan', 'is_jain', 'is_eggless', 'is_gluten_free', 'is_new', 'is_festive', 'in_stock']) row[k] = String(f.elements[k].checked);
     // Reuse the import RPC: validated server-side, upserts sweet + variants in one go.
     const { data, error } = await supabase.rpc('admin_import_sweets', { p_rows: [row], p_mode: 'catalog' });
     if (error) { err(error); return; }
     if (data.errors?.length) { err(data.errors[0].message); return; }
-    if (photoUrl) await supabase.from('sweets').update({ image_url: photoUrl, image_credit: 'Photo: Swaad Sujhaav' }).eq('slug', row.slug);
+    if (photoUrl) await supabase.from('sweets').update({ image_url: photoUrl, image_credit: 'Photo: Mithai Mitra' }).eq('slug', row.slug);
     toast(isNew ? 'Sweet created ✨' : 'Saved', 'success');
     m.close(); onDone().catch(err);
   });

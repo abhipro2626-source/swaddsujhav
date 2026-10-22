@@ -34,7 +34,7 @@ async function askLocal(q) {
   const list = await loadCatalog();
   const found = search(list.filter((s) => s.in_stock), q).slice(0, 4);
   return {
-    reply: found[0] ? `Mera sujhaav hai ${found[0].name}! Chalo ji, dikhaunda haan.` : 'Hmm, aisi mithai nahi mili ji. Thoda alag dasso?',
+    reply: found[0] ? `Mera sujhaav hai ${found[0].name}! Chaliye ji, dikhata hoon.` : 'Hmm, aisi mithai nahi mili ji. Thoda alag batayiye?',
     items: found.map((s) => ({ sweet_id: s.id })),
     go: found[0] ? { type: 'sweet', slug: found[0].slug } : null,
     engine: 'local',
@@ -50,7 +50,7 @@ export function openAskPaaji() {
   m.body.innerHTML = html`
     <div class="ask">
       <header class="ask__head">
-        <h2>🧔🏽 Dasso ji, ki chahida?</h2>
+        <h2>🧔🏽 Bataiye ji, kya chahiye?</h2>
         <button type="button" class="link-btn" data-new-chat ${history.length ? '' : 'hidden'}>New chat</button>
       </header>
       <div class="ask__log" id="ask-log" aria-live="polite"></div>
@@ -92,7 +92,7 @@ export function openAskPaaji() {
 
   loadCatalog().then(() => {
     for (const h of history) bubble(h.role, h.text, h.picks || []);
-    if (!history.length) bubble('paaji', 'Jai Shree Ram ji! Kis mauke layi, kinni mithaas, koi parhez? Dasso, main sahi mithai dhoond dinda haan.');
+    if (!history.length) bubble('paaji', 'Jai Shree Ram ji! Kis mauke ke liye, kitni mithaas, koi parhez? Bataiye, main sahi mithai dhoondh deta hoon.');
   });
 
   form.addEventListener('submit', async (e) => {
@@ -104,7 +104,7 @@ export function openAskPaaji() {
     m.body.querySelector('.ask__examples')?.setAttribute('hidden', '');
     m.body.querySelector('[data-new-chat]')?.removeAttribute('hidden');
     bubble('user', q);
-    const thinking = bubble('paaji', 'Soch rahe haan ji…');
+    const thinking = bubble('paaji', 'Soch raha hoon ji…');
     thinking.classList.add('is-thinking');
     const btn = form.querySelector('[type=submit]');
     btn.disabled = true;
@@ -124,7 +124,7 @@ export function openAskPaaji() {
       const label = r.go.type === 'sweet' ? (getBySlug(r.go.slug)?.name || 'mithai') : 'page';
       const note = document.createElement('p');
       note.className = 'ask-go';
-      note.innerHTML = html`Le chal raha haan ${label} te… <button type="button" class="link-btn" data-stay>Ruko, aur poochna hai</button>`;
+      note.innerHTML = html`Le chal raha hoon ${label} par… <button type="button" class="link-btn" data-stay>Ruko, aur poochna hai</button>`;
       log.appendChild(note);
       log.scrollTop = log.scrollHeight;
       goTimer = setTimeout(() => go(r.go), r.go.type === 'sweet' ? 3500 : 1800);
@@ -140,7 +140,7 @@ export function openAskPaaji() {
     if (pick) { e.preventDefault(); go({ type: 'sweet', slug: pick.dataset.go }); return; }
     if (e.target.closest('[data-new-chat]')) {
       cancelGo(); history.length = 0; saveHistory(history); log.innerHTML = '';
-      bubble('paaji', 'Chalo ji, nayi gal shuru karde haan! Ki chahida?');
+      bubble('paaji', 'Chaliye ji, nayi baat shuru karte hain! Kya chahiye?');
       return;
     }
     const mic = e.target.closest('[data-mic]');

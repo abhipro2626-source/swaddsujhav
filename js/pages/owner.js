@@ -250,7 +250,7 @@ function printView(rows, day) {
   const list = rows.filter((r) => Number(r.make_kg) > 0).sort((a, b) => b.make_kg - a.make_kg);
   wrap.innerHTML = html`<button type="button" class="btn" data-close-print style="float:right">✕ Close</button>
     <h1 style="margin:0 0 4px">Kal ki bhatti — ${new Date(`${day}T00:00`).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</h1>
-    <p>Swaad Sujhaav, Muzaffarnagar · ${list.length} items</p>
+    <p>Mithai Mitra, Muzaffarnagar · ${list.length} items</p>
     <table><thead><tr><th>Mithai</th><th class="num">Banao</th><th>Kyun</th></tr></thead>
       <tbody>${list.map((r) => html`<tr><td>${r.name}</td><td class="num">${Number(r.make_kg).toFixed(1)} kg</td><td>${(r.reasons || []).join(', ')}</td></tr>`)}</tbody></table>`;
   document.body.appendChild(wrap);

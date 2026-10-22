@@ -1,173 +1,173 @@
-// Paaji's dialogue bank — original Hinglish/Punjabi lines written for this shop.
+// Paaji's dialogue bank — original Hindi lines written for Mithai Mitra.
 // {name}, {sweet}, {added}, {a}, {b} are filled in at runtime.
 // The shop owner can override/extend any trigger from the admin panel (paaji_lines table).
 
 export const LINES = {
   welcome: [
-    'Paaji, tussi padharo! Swaad Sujhaav vich tuhada swagat hai!',
-    'Aao ji aao, aaj kuch meetha ho jaaye!',
-    'Jai Shree Ram ji! Muzaffarnagar di sabton mithi dukaan vich swagat hai.',
-    'Jee aayan nu! Thaali saji hai, bas tuhadi pasand di kami si.',
-    'Aao ji! Aaj diye vi jale ne te kadhai vi garam hai.',
+    'Aaiye, aaiye! Mithai Mitra mein aapka swagat hai!',
+    'Aaiye ji, aaj kuch meetha ho jaaye!',
+    'Jai Shree Ram ji! Muzaffarnagar ki sabse meethi dukaan mein aapka swagat hai.',
+    'Padhariye ji! Thaali saji hai, bas aapki pasand ki kami thi.',
+    'Aaiye ji! Aaj diye bhi jale hain aur kadhai bhi garam hai.',
   ],
   return: [
-    'Oye {name} ji, phir aa gaye! Tuhadi pasand di mithai ready hai.',
-    '{name} ji! Bade din baad... chalo, aaj kuch khaas dikhaanda haan.',
-    'Wah {name} ji, tuhade bina dukaan suni si!',
-    '{name} ji, tuhada swaad mainu yaad hai. Dekho ki laya haan!',
+    'Arre {name} ji, phir aa gaye! Aapki pasand ki mithai taiyaar hai.',
+    '{name} ji! Bade dinon baad... chaliye, aaj kuch khaas dikhata hoon.',
+    'Wah {name} ji, aapke bina dukaan sooni thi!',
+    '{name} ji, aapka swaad mujhe yaad hai. Dekhiye kya laaya hoon!',
   ],
   add: [
-    'Wah ji wah, kya choice hai!',
-    'Ekdum sahi pasand ji!',
-    'Bas, hun mooh mitha ho gaya samjho!',
+    'Wah ji wah, kya pasand hai!',
+    'Ekdum sahi chunaav ji!',
+    'Bas, ab mooh meetha ho gaya samjhiye!',
     'Shabaash! Ye toh dil jeet legi.',
-    'Kamaal di choice ji, ekdum kamaal!',
+    'Kamaal ki pasand ji, ekdum kamaal!',
   ],
   upsell_new: [
-    'Ye {sweet} bhi le jao, poore Muzaffarnagar mein nayi hai!',
-    'Ye {sweet} bhi le jao ji, poore Muzaffarnagar mein nayi hai! Bilkul taazi.',
-    'Ek baar {sweet} chakh ke dekho, dil khush ho jayega! Poore shehar mein nayi hai.',
-    'Ye bhi le lo ji, {sweet} bilkul naya hai!',
+    'Ye {sweet} bhi le jaiye, poore Muzaffarnagar mein nayi hai!',
+    'Ye {sweet} bhi le jaiye ji, poore Muzaffarnagar mein nayi hai! Bilkul taazi.',
+    'Ek baar {sweet} chakh ke dekhiye, dil khush ho jaayega! Poore shehar mein nayi hai.',
+    'Ye bhi le lijiye ji, {sweet} bilkul nayi hai!',
   ],
   upsell_pair: [
-    'Ye {sweet} bhi le jao ji, {added} de naal jodi kamaal di hai!',
-    '{added} de naal {sweet}? Jodi number one ji!',
-    'Sunno ji, {added} nu {sweet} da saath bada pasand hai.',
+    'Ye {sweet} bhi le jaiye ji, {added} ke saath iski jodi kamaal ki hai!',
+    '{added} ke saath {sweet}? Jodi number one ji!',
+    'Suniye ji, {added} ke saath {sweet} ka saath sabko bahut pasand aata hai.',
   ],
   upsell_similar: [
-    '{added} pasand aayi? Toh {sweet} vi zaroor chakhna ji!',
-    'Jinhaan nu {added} pasand aundi hai, oh {sweet} vi le jaande ne.',
+    '{added} pasand aayi? Toh {sweet} bhi zaroor chakhiye ji!',
+    'Jinhe {added} pasand aati hai, woh {sweet} bhi le jaate hain.',
   ],
   // Mix & Save nudges ({n} more sweets → {pct}% off)
   mix_nudge: [
-    'Bas {n} mithai hor ji, te poori thaali te {pct}% bachat!',
-    'Ek kaam karo ji — {n} hor daal lo, {pct}% off mil jauga!',
-    'Suniye ji, {n} hor mithai te {pct}% di chhoot pakki!',
+    'Bas {n} mithai aur ji, aur poori thaali par {pct}% bachat!',
+    'Ek kaam kijiye ji — {n} aur daal lijiye, {pct}% off mil jaayega!',
+    'Suniye ji, {n} aur mithai par {pct}% ki chhoot pakki!',
   ],
   mix_unlocked: [
-    'Balle balle! {pct}% Mix & Save unlock ho gaya ji!',
-    'Wah ji! Hun poori thaali te {pct}% off!',
+    'Waah! {pct}% Mix & Save khul gaya ji!',
+    'Wah ji! Ab poori thaali par {pct}% off!',
   ],
   cart_idle: [
-    'Cart vich mithai intezaar kar rahi hai ji!',
-    'Thaali taiyaar hai ji, bas ek click di der hai!',
-    'Mithai thandi ho jaugi ji... chalo order kar lo!',
+    'Cart mein mithai aapka intezaar kar rahi hai ji!',
+    'Thaali taiyaar hai ji, bas ek click ki der hai!',
+    'Mithai thandi ho jaayegi ji... chaliye order kar lijiye!',
   ],
   order: [
-    'Wah ji wah! Order ho gaya. Mooh mitha karo te muskuraao!',
-    'Shukriya ji! Tuhadi thaali pyaar naal saja rahe haan.',
-    'Balle balle! Order pakka, mithai pakki!',
+    'Wah ji wah! Order ho gaya. Mooh meetha kijiye aur muskuraiye!',
+    'Shukriya ji! Aapki thaali pyaar se saja rahe hain.',
+    'Waah! Order pakka, mithai pakki!',
   ],
   no_result: [
-    'Ye wali toh nahi mili ji, par ye try karo!',
-    'Oho, ye mithai abhi dukaan vich nahi hai. Par ye dekho ji!',
-    'Naam thoda alag hai shayad? Chalo, ye wali try karo!',
+    'Ye wali toh nahi mili ji, par ye try kijiye!',
+    'Oho, ye mithai abhi dukaan mein nahi hai. Par ye dekhiye ji!',
+    'Naam thoda alag hai shayad? Chaliye, ye wali try kijiye!',
   ],
   login: [
-    'Wapas aa gaye ji! Tuhada cart te pasand dono yaad ne.',
+    'Wapas aa gaye ji! Aapka cart aur pasand dono yaad hain.',
   ],
   signup: [
-    'Wah ji wah! Parivaar vich swagat hai!',
+    'Wah ji wah! Parivaar mein aapka swagat hai!',
   ],
   quiz_done: [
-    'Bas ji! Hun meri har sujhaav tuhade swaad naal hogi.',
+    'Bas ji! Ab meri har sujhaav aapke swaad ke hisaab se hogi.',
   ],
   removed: [
-    'Koi gal nahi ji, mann badal gaya? Undo da button haazir hai.',
+    'Koi baat nahi ji, mann badal gaya? Undo ka button haazir hai.',
   ],
   cart_open: [
-    'Dekho ji, thaali kinni sohni lag rahi hai!',
-    'Thaali vekh lo ji, kuch hor chahida?',
+    'Dekhiye ji, thaali kitni sundar lag rahi hai!',
+    'Thaali dekh lijiye ji, kuch aur chahiye?',
   ],
   // Fun facts for idle moments — keep these accurate.
   fact: [
-    'Pata hai? Mysore Pak pehli baar Mysore Palace di rasoi vich bani si!',
-    'Pata hai? Rasgulle nu Bengal te Odisha dono nu apna-apna GI tag mila hai.',
-    'Pata hai? Gulab jamun da naam gulab-jal te jamun phal ton aaya hai.',
-    'Pata hai? Kaju Bharat vich Portuguese lekar aaye si, solvi sadi vich, Goa de raaste.',
-    'Pata hai? Dharwad peda te Tirupati laddu, dono nu GI tag mila hoya hai.',
-    'Pata hai? Ghewar khaas taur te Teej te Raksha Bandhan te banda hai.',
-    'Pata hai? Iran vich jalebi nu zulbia kehnde ne.',
-    'Pata hai? Mishti doi mitti de kulhad vich jamaai jaandi hai, isliye itni gaadhi hundi hai.',
-    'Pata hai? Muzaffarnagar di gur mandi Asia di sabton vaddiyan mandiyan vich gini jaandi hai!',
-    'Pata hai? Istanbul de Topkapi Palace ton Ramzan vich baklava da juloos nikalda si.',
-    'Pata hai? Lonavala di chikki da shuru 1880 de aas-paas Maganlal ne kitta si.',
-    'Pata hai? Kalakand Alwar vich 1947 vich Baba Thakur Das ne banaaya si.',
+    'Pata hai? Mysore Pak pehli baar Mysore Palace ki rasoi mein bani thi!',
+    'Pata hai? Rasgulle ko Bengal aur Odisha dono ko apna-apna GI tag mila hai.',
+    'Pata hai? Gulab jamun ka naam gulab-jal aur jamun phal se aaya hai.',
+    'Pata hai? Kaju Bharat mein Portuguese lekar aaye the, solahvi sadi mein, Goa ke raaste.',
+    'Pata hai? Dharwad peda aur Tirupati laddu, dono ko GI tag mila hua hai.',
+    'Pata hai? Ghewar khaas taur par Teej aur Raksha Bandhan par banta hai.',
+    'Pata hai? Iran mein jalebi ko zulbia kehte hain.',
+    'Pata hai? Mishti doi mitti ke kulhad mein jamaayi jaati hai, isliye itni gaadhi hoti hai.',
+    'Pata hai? Muzaffarnagar ki gur mandi Asia ki sabse badi mandiyon mein gini jaati hai!',
+    'Pata hai? Istanbul ke Topkapi Palace se Ramzan mein baklava ka juloos nikalta tha.',
+    'Pata hai? Lonavala ki chikki ki shuruaat 1880 ke aas-paas Maganlal ne ki thi.',
+    'Pata hai? Kalakand Alwar mein 1947 mein Baba Thakur Das ne banaaya tha.',
   ],
   think: [
-    'Hmm... soch raha haan tuhade layi ki best rahegi...',
-    'Ek minute ji, thaali vich nazar maar reha haan...',
+    'Hmm... soch raha hoon aapke liye kya sabse achha rahega...',
+    'Ek minute ji, thaali mein nazar daal raha hoon...',
   ],
 
   // ---------------------------------------------------------------- Feature Pack 2
   taaza: [
     'Abhi abhi taaza {sweet} aaya hai ji, garam garam!',
-    'Bhatti ton seedha — {sweet} bilkul taaza bani hai!',
-    '{sweet} hune hune bani ji, khushboo hi kaafi hai!',
+    'Bhatti se seedha — {sweet} bilkul taaza bani hai!',
+    '{sweet} abhi abhi bani hai ji, khushboo hi kaafi hai!',
   ],
   combo: [
-    'Meetha ho gaya, ab thoda namkeen bhi ho jaaye? {sweet} de naal {added}, kya baat hai!',
-    'Meethe ke baad {added} — balance bhi, swaad bhi!',
-    '{sweet} te {added} di jodi — mehmaan vi khush, tussi vi!',
+    'Meetha ho gaya, ab thoda namkeen bhi ho jaaye? {sweet} ke saath {added}, kya baat hai!',
+    'Meethe ke baad {added} — santulan bhi, swaad bhi!',
+    '{sweet} aur {added} ki jodi — mehmaan bhi khush, aap bhi!',
   ],
   deal_soon: [
-    'Thodi der vich last-hour deals shuru hone wali ne ji — nazar rakhna!',
+    'Thodi der mein last-hour deals shuru hone wali hain ji — nazar rakhiye!',
   ],
   deal_live: [
-    'Dukaan band hone wali hai ji, taaza mithai {pct}% kam daam vich... jaldi karo!',
-    'Last-hour deal chal rahi hai — {pct}% off, bas kuch der layi!',
+    'Dukaan band hone wali hai ji, taaza mithai {pct}% kam daam mein... jaldi kijiye!',
+    'Last-hour deal chal rahi hai — {pct}% off, bas kuch der ke liye!',
   ],
   scratch_win: [
-    'Wah ji wah! Tussi jeet gaye — {prize}!',
-    'Lo ji, kismat chamak gayi — {prize}! Agli baar mooh mitha sasta!',
+    'Wah ji wah! Aap jeet gaye — {prize}!',
+    'Lijiye ji, kismat chamak gayi — {prize}! Agli baar mooh meetha sasta!',
   ],
   scratch_lose: [
-    'Koi gal nahi ji, agli baar pakka!',
+    'Koi baat nahi ji, agli baar pakka!',
     'Is baar na sahi — mithaas toh har baar milegi ji!',
   ],
   festival_book: [
-    '{fest} aa raha hai ji! Pehle hi book kar lo, line vich nahi lagna padega.',
-    '{fest} di mithai abhi book karo — slot full hone ton pehle!',
+    '{fest} aa raha hai ji! Pehle hi book kar lijiye, line mein nahi lagna padega.',
+    '{fest} ki mithai abhi book kijiye — slot bharne se pehle!',
   ],
   preorder_done: [
-    'Booking pakki ji! {fest} wale din taaza bana ke rakhaange.',
+    'Booking pakki ji! {fest} wale din taaza bana ke rakhenge.',
   ],
   hot_alert: [
-    'Kadhai se seedhi garam {sweet} nikal rahi hai ji! Jaldi aao!',
-    'Garma-garam {sweet} — {mins} minute vich ready! Rakh doon tuhade layi?',
+    'Kadhai se seedhi garam {sweet} nikal rahi hai ji! Jaldi aaiye!',
+    'Garma-garam {sweet} — {mins} minute mein taiyaar! Aapke liye rakh doon?',
   ],
   hot_reserved: [
-    'Rakh di ji! {grams} g garam {sweet} tuhade naam — 30 minute vich aa jaana.',
+    'Rakh di ji! {grams} gram garam {sweet} aapke naam — 30 minute mein aa jaaiye.',
   ],
   gift_plan: [
-    '{name} layi {sweet} — pyaar bhi, sehat bhi!',
-    'Saare rishtedaaran da dabba tayyar ji — budget vich, sab di pasand naal!',
+    '{name} ke liye {sweet} — pyaar bhi, sehat bhi!',
+    'Saare rishtedaaron ke dabbe taiyaar ji — budget mein, sabki pasand ke saath!',
   ],
   gift_over: [
     'Budget thoda upar chala gaya ji — ek dabba chhota kar dein?',
   ],
   bhooli_found: [
     'Mil gayi ji! Yeh thi... {sweet}!',
-    'Pehchaan liya! Tussi {sweet} di gal kar rahe si!',
+    'Pehchaan liya! Aap {sweet} ki baat kar rahe the!',
   ],
   bhooli_ask: [
     'Ek sawaal ji — {q}',
   ],
   bhooli_none: [
-    'Hmm, thodi mushkil hai ji. Ye teen sabse kareeb ne — ya dukaan nu bhej do, hum dhoond ke batayenge!',
+    'Hmm, thodi mushkil hai ji. Ye teen sabse kareeb hain — ya dukaan ko bhej dijiye, hum dhoondh ke batayenge!',
   ],
   fresh_batch_owner: [
-    'Taaza batch darj ho gaya ji — sab de phone te dikh gaya!',
+    'Taaza batch darj ho gaya ji — sabke phone par dikh gaya!',
   ],
 };
 
 // Fixed pairings Paaji loves to mention.
 export const PAIRS = [
-  ['Rasgulla', 'Rasmalai', 'Rasgulle de naal rasmalai, jodi number one!'],
-  ['Jalebi', 'Rabri', 'Garam jalebi te thandi rabri — swarg ji, swarg!'],
-  ['Gajar Ka Halwa', 'Gulab Jamun', 'Gajar halwa te gulab jamun, sardiyan di shahi jodi!'],
-  ['Baklava', 'Kunafa', 'Baklava de naal kunafa? Turkey te Arab dono ik thaali vich!'],
-  ['Kaju Katli', 'Soan Papdi', 'Kaju katli te soan papdi — Deepawali da asli dabba!'],
+  ['Rasgulla', 'Rasmalai', 'Rasgulle ke saath rasmalai, jodi number one!'],
+  ['Jalebi', 'Rabri', 'Garam jalebi aur thandi rabri — swarg ji, swarg!'],
+  ['Gajar Ka Halwa', 'Gulab Jamun', 'Gajar halwa aur gulab jamun, sardiyon ki shahi jodi!'],
+  ['Baklava', 'Kunafa', 'Baklava ke saath kunafa? Turkey aur Arab dono ek thaali mein!'],
+  ['Kaju Katli', 'Soan Papdi', 'Kaju katli aur soan papdi — Deepawali ka asli dabba!'],
 ];
 
 const lastUsed = new Map();

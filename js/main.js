@@ -274,7 +274,7 @@ function initGlobalClicks() {
     const next = store.get('theme') === 'night' ? 'day' : 'night';
     local.set('ss:theme', next);
     applyTheme(next);
-    if (next === 'night') document.dispatchEvent(new CustomEvent('ss:say', { detail: { text: 'Deepawali di raat! Diye jala dite ne ji 🪔', mood: 'celebrate' } }));
+    if (next === 'night') document.dispatchEvent(new CustomEvent('ss:say', { detail: { text: 'Deepawali ki raat! Diye jala diye hain ji 🪔', mood: 'celebrate' } }));
   });
   $('#lang-btn')?.addEventListener('click', toggleLang);
 }
@@ -292,7 +292,7 @@ async function showConnection() {
   const { ok, count: n, error } = await checkConnection();
   pill.dataset.state = ok ? 'ok' : 'error';
   pill.textContent = ok ? `Dukaan khuli hai · ${n} mithaiyan ready` : 'Could not reach the shop';
-  if (!ok) console.warn('[Swaad Sujhaav] connection check failed:', error);
+  if (!ok) console.warn('[Mithai Mitra] connection check failed:', error);
 }
 
 function revealApp() {

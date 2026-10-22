@@ -1,8 +1,8 @@
-// Swaad Sujhaav service worker — only for Garam Jalebi push notifications.
+// Mithai Mitra service worker — only for Garam Jalebi push notifications.
 // (No offline caching, so the shop always shows live stock and prices.)
 self.addEventListener('push', (event) => {
   let data = {};
-  try { data = event.data ? event.data.json() : {}; } catch { data = { title: 'Swaad Sujhaav', body: event.data?.text() }; }
+  try { data = event.data ? event.data.json() : {}; } catch { data = { title: 'Mithai Mitra', body: event.data?.text() }; }
   event.waitUntil(self.registration.showNotification(data.title || '🔥 Garam batch aa raha hai!', {
     body: data.body || 'Kadhai se seedhi garam mithai — jaldi aao!',
     icon: data.icon || 'assets/icon-192.png',

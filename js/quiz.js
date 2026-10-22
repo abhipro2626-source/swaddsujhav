@@ -41,7 +41,7 @@ const QUESTIONS = [
       { v: 'dry_fruit', e: '🌰', l: 'Dry fruit, crunchy' },
       { v: 'both', e: '🤝', l: 'Dono chalenge!' },
     ],
-    react: (v) => (v === 'both' ? 'Dil bada hai tuhada ji!' : 'Theek hai ji, yaad rakhunga.'),
+    react: (v) => (v === 'both' ? 'Aapka dil bada hai ji!' : 'Theek hai ji, yaad rakhunga.'),
   },
   {
     id: 'spice', type: 'single', title: 'Namkeen kaisa pasand hai?',
@@ -51,7 +51,7 @@ const QUESTIONS = [
       { v: 'medium', e: '😋', l: 'Thoda chatpata' },
       { v: 'spicy', e: '🌶️', l: 'Teekha, ekdum masaledaar!' },
     ],
-    react: (v) => (v === 'spicy' ? 'Oho, teekhe ke shaukeen! Bikaneri bhujia yaad rakhunga.' : v === 'mild' ? 'Halka namkeen — moong dal te mathri, pakka!' : 'Chatpata — sabse balanced choice ji!'),
+    react: (v) => (v === 'spicy' ? 'Oho, teekhe ke shaukeen! Bikaneri bhujia yaad rakhunga.' : v === 'mild' ? 'Halka namkeen — moong dal aur mathri, pakka!' : 'Chatpata — sabse balanced choice ji!'),
   },
   {
     id: 'diet', type: 'multi', title: 'Koi khaas parhez?',
@@ -79,7 +79,7 @@ const QUESTIONS = [
       { v: 'Hyderabad', e: '🏰', l: 'Hyderabad & Awadh' },
       { v: 'World', e: '🌍', l: 'Around the world' },
     ],
-    react: () => 'Shukriya ji! Hun main tuhade layi khaas sujhaav bana raha haan.',
+    react: () => 'Shukriya ji! Ab main aapke liye khaas sujhaav bana raha hoon.',
   },
 ];
 
@@ -126,8 +126,8 @@ export function openQuiz({ fromSignup = false } = {}) {
     });
 
     say(fromSignup
-      ? `Swagat hai ${firstName() || 'ji'}! Paanch chhote sawaal, phir main tuhanu best mithai dikhaunga.`
-      : 'Chalo ji, tuhadi pasand phir se samajhde haan!', 'wave');
+      ? `Swagat hai ${firstName() || 'ji'}! Kuch chhote sawaal, phir main aapko sabse achhi mithai dikhaunga.`
+      : 'Chaliye ji, aapki pasand phir se samajhte hain!', 'wave');
 
     const render = () => {
       const q = QUESTIONS[step];
@@ -195,7 +195,7 @@ export function openQuiz({ fromSignup = false } = {}) {
           done = true;
           document.dispatchEvent(new CustomEvent('ss:quiz-done', { detail: profile }));
           modal.close('done');
-          toast('Taste profile saved! Paaji ke sujhaav ab tuhade layi hain.', 'success');
+          toast('Taste profile saved! Paaji ke sujhaav ab aapke liye hain.', 'success');
           resolve(profile);
         } catch (err) {
           btn.disabled = false;

@@ -15,7 +15,7 @@ export function openAuthModal(mode = 'login') {
       <div class="auth">
         <div class="auth__head">
           <span class="auth__diya" aria-hidden="true">🪔</span>
-          <h2>${isLogin ? 'Phir se swagat hai!' : 'Swaad Sujhaav parivaar mein aao'}</h2>
+          <h2>${isLogin ? 'Phir se swagat hai!' : 'Mithai Mitra parivaar mein aaiye'}</h2>
           <p class="muted">${isLogin ? 'Log in to see your sujhaav, orders and favourites.'
                                      : 'Sign up to save your taste, favourites and orders.'}</p>
         </div>
@@ -69,16 +69,16 @@ export function openAuthModal(mode = 'login') {
       if (mode === 'login') {
         await signIn(data);
         modal.close('done');
-        toast('Logged in. Jee aayan nu!', 'success');
+        toast('Logged in. Padhariye ji!', 'success');
       } else {
         const { needsConfirmation } = await signUp(data);
         modal.close('done');
         if (needsConfirmation) {
           toast('Check your email to confirm your account, then log in.', 'success', 6000);
-          say('Email check karo ji, confirm karke wapas aao. Main intezaar karunga!');
+          say('Email check kijiye ji, confirm karke wapas aaiye. Main intezaar karunga!');
         } else {
           document.dispatchEvent(new CustomEvent('ss:celebrate', { detail: { kind: 'signup' } }));
-          say(`Wah ji wah, ${data.name.split(' ')[0]} ji! Parivaar vich swagat hai!`, 'dance');
+          say(`Wah ji wah, ${data.name.split(' ')[0]} ji! Parivaar mein aapka swagat hai!`, 'dance');
           setTimeout(() => openQuiz({ fromSignup: true }), 900);
         }
       }

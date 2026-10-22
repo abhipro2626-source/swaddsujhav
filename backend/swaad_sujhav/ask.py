@@ -238,15 +238,15 @@ def _why(s: dict, f: dict) -> str:
 
 def _reply(f: dict, items: list, m: ml.Model) -> str:
     if f["intent"] == "budget":
-        return f"Rs {f['budget']} vich {f['guests']} mehmaan? Chalo ji, Budget Mode vich poora mix bana dinda haan!"
+        return f"Rs {f['budget']} mein {f['guests']} mehmaan? Chaliye ji, Budget Mode mein poora mix bana deta hoon!"
     if f["intent"] == "giftbox":
-        return "Apna dabba sajaana hai? Chalo ji, Gift Box Builder kholda haan!"
+        return "Apna dabba sajaana hai? Chaliye ji, Gift Box Builder kholta hoon!"
     if f["intent"] == "orders":
-        return "Tuhada order dekhde haan ji, profile vich chalo."
+        return "Aapka order dekhte hain ji, profile mein chaliye."
     if f["intent"] == "cart":
-        return "Lo ji, thaali haazir hai!"
+        return "Lijiye ji, thaali haazir hai!"
     if not items:
-        return "Hmm, aisi mithai abhi nahi mili ji. Thoda alag tarike naal dasso?"
+        return "Hmm, aisi mithai abhi nahi mili ji. Thoda alag tarike se bataiye?"
     top = m.sweets[m.idx[items[0]["sweet_id"]]]["name"]
     wish = []
     if "sugar_free" in f["diet"]:
@@ -254,9 +254,9 @@ def _reply(f: dict, items: list, m: ml.Model) -> str:
     if f["sweetness"] == "low" and "sugar_free" not in f["diet"]:
         wish.append("halki")
     if f["occasion"]:
-        wish.append({"wedding": "shaadi layi", "diwali": "Deepawali layi", "birthday": "birthday layi", "guests": "mehmaanan layi",
-                     "office": "office gift layi", "puja": "prasad layi", "rakhi": "Rakhi layi", "eid": "Eid layi", "holi": "Holi layi"}[f["occasion"]])
+        wish.append({"wedding": "shaadi ke liye", "diwali": "Deepawali ke liye", "birthday": "birthday ke liye", "guests": "mehmaanon ke liye",
+                     "office": "office gift ke liye", "puja": "prasad ke liye", "rakhi": "Rakhi ke liye", "eid": "Eid ke liye", "holi": "Holi ke liye"}[f["occasion"]])
     if f["max_price"]:
         wish.append(f"Rs {f['max_price']} tak")
     lead = f"{' '.join(wish).capitalize()} mithai? " if wish else ""
-    return f"{lead}Mera sujhaav hai {top}! Chalo ji, dikhaunda haan."
+    return f"{lead}Mera sujhaav hai {top}! Chaliye ji, dikhata hoon."

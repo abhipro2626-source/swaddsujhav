@@ -46,7 +46,7 @@ GEMINI_TTS_VOICE = os.getenv("GEMINI_TTS_VOICE", "Orus").strip()
 GEMINI_TTS_MODELS = [m.strip() for m in os.getenv(
     "GEMINI_TTS_MODEL", "gemini-2.5-flash-preview-tts,gemini-3.1-flash-tts-preview").split(",") if m.strip()]
 GEMINI_TTS_STYLE = os.getenv(
-    "GEMINI_TTS_STYLE", "Say warmly and cheerfully, like a friendly Punjabi sweet-shop uncle welcoming a customer:").strip()
+    "GEMINI_TTS_STYLE", "Say warmly and cheerfully, like a friendly Indian sweet-shop uncle welcoming a customer:").strip()
 
 AZURE_KEY = os.getenv("AZURE_SPEECH_KEY", "").strip()
 AZURE_REGION = os.getenv("AZURE_SPEECH_REGION", "centralindia").strip()
@@ -182,11 +182,13 @@ async def _gemini(client: httpx.AsyncClient, text: str) -> bytes:
 
 
 async def _eleven(client: httpx.AsyncClient, text: str) -> bytes:
+    # Paaji speaks Hindi: Devanagari gives ElevenLabs' multilingual model the right pronunciation.
+    spoken = text if _mostly_devanagari(text) else await gemini.to_devanagari(client, text)
     r = await client.post(
         f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVEN_VOICE}",
         params={"output_format": "mp3_44100_128"},
         headers={"xi-api-key": ELEVEN_KEY, "Content-Type": "application/json", "Accept": "audio/mpeg"},
-        json={"text": text, "model_id": ELEVEN_MODEL, "voice_settings": ELEVEN_SETTINGS},
+        json={"text": spoken, "model_id": ELEVEN_MODEL, "voice_settings": ELEVEN_SETTINGS},
         timeout=httpx.Timeout(30.0, connect=5.0))
     if r.status_code == 401:
         _rest("elevenlabs", 86400)               # revoked/invalid key: stop trying for a day
@@ -264,7 +266,9 @@ def cached(text: str) -> tuple[bytes, str] | None:
 
 
 def can_stream() -> bool:
-    return "edge" in _providers() and time.time() >= _off_until["edge"]
+    """Stream only when Madhur (edge) is the chosen voice; another first choice uses synthesize()."""
+    p = _providers()
+    return bool(p) and p[0] == "edge" and time.time() >= _off_until["edge"]
 
 
 async def stream(text: str, client: httpx.AsyncClient):

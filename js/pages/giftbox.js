@@ -107,7 +107,7 @@ export async function renderGiftBox(view) {
     drawBox();
     const el = grid.querySelector(`[data-slot="${at}"]`);
     if (el && !prefersReducedMotion()) el.animate([{ transform: 'scale(.4)', opacity: 0 }, { transform: 'scale(1.08)' }, { transform: 'scale(1)', opacity: 1 }], { duration: 360, easing: 'ease-out' });
-    if (filled() === st.size) say('Wah ji, dabba tayyar! Ribbon chuno te thaali vich paao.', 'celebrate');
+    if (filled() === st.size) say('Wah ji, dabba taiyaar! Ribbon chuniye aur thaali mein daaliye.', 'celebrate');
   }
 
   function resize(n) {
@@ -121,7 +121,7 @@ export async function renderGiftBox(view) {
   async function paajiFill() {
     const empty = st.slots.map((v, i) => (v ? null : i)).filter((i) => i != null);
     if (!empty.length) { say('Dabba toh pehle hi bhara hai ji!'); return; }
-    say('Ruko ji, main sajaanda haan…', 'think');
+    say('Rukiye ji, main sajaata hoon…', 'think');
     const chosen = st.slots.filter(Boolean).map(getById);
     let picks = [];
     try {
@@ -169,7 +169,7 @@ export async function renderGiftBox(view) {
       btn.disabled = true;
       try {
         await addBox({ size: st.size, ribbon: st.ribbon, message: st.message, items: st.slots });
-        say(`Sohna dabba ji! ${st.size} mithaiyan, ${RIBBONS.find((r) => r.key === st.ribbon).label} ribbon de naal.`, 'celebrate');
+        say(`Sundar dabba ji! ${st.size} mithaiyan, ${RIBBONS.find((r) => r.key === st.ribbon).label} ribbon ke saath.`, 'celebrate');
         st.slots = Array(st.size).fill(null);
         drawBox();
         openCart();

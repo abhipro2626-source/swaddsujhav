@@ -178,10 +178,10 @@ export async function renderHome(app) {
 
 function moodLine(key) {
   return {
-    celebrating: 'Jashn hai? Phir toh kaju katli aur motichoor bina gal nahi banni!',
-    light: 'Halka-phulka? Sugar-free aur dry fruit wali mithai dikhaunda haan ji.',
-    guests: 'Mehmaan aa rahe ne? Rasgulla, barfi te laddoo, sab nu pasand aundi hai!',
-    latenight: 'Raat di bhookh? Ek gulab jamun ya brownie, koi gal nahi ji!',
+    celebrating: 'Jashn hai? Phir toh kaju katli aur motichoor ke bina baat nahi banegi!',
+    light: 'Halka-phulka? Sugar-free aur dry fruit wali mithai dikhata hoon ji.',
+    guests: 'Mehmaan aa rahe hain? Rasgulla, barfi aur laddoo, sabko pasand aati hai!',
+    latenight: 'Raat ki bhookh? Ek gulab jamun ya brownie, koi baat nahi ji!',
   }[key];
 }
 
@@ -201,7 +201,7 @@ async function loadForYou(mood) {
       }
     }
     const title = m ? `${m.emoji} Paaji's picks for "${m.label}"` : user ? t('row_for_you') : t('row_for_you_guest');
-    slot.innerHTML = row({ id: 'row-foryou', title, sub: user ? 'Tuhadi pasand de hisaab naal' : 'Log in and take the taste quiz for personal picks',
+    slot.innerHTML = row({ id: 'row-foryou', title, sub: user ? 'Aapki pasand ke hisaab se' : 'Log in and take the taste quiz for personal picks',
       items: items.slice(0, 14), reasons, empty: 'Paaji is thinking… try again in a moment.' });
   } catch (err) {
     console.warn('[home] recommendations failed', err);

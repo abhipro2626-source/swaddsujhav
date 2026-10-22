@@ -414,7 +414,7 @@ export function initPaaji() {
   store.on('muted', syncMute);
   muteBtn.addEventListener('click', () => {
     setMuted(!isMuted());
-    if (!isMuted()) say({ text: 'Lo ji, hun main bol sakda haan!', mood: 'wave', priority: 'high' });
+    if (!isMuted()) say({ text: 'Lijiye ji, ab main bol sakta hoon!', mood: 'wave', priority: 'high' });
   });
 
   // Blink every few seconds.
@@ -442,7 +442,7 @@ export function initPaaji() {
       if (s) {
         const r = reasons.get(s.id);
         say({
-          text: `${s.name} try karo ji! ${r?.text ? `(${r.text})` : ''}`, mood: 'point',
+          text: `${s.name} try kijiye ji! ${r?.text ? `(${r.text})` : ''}`, mood: 'point',
           extra: html`<a class="bubble__pick" href="#/sweet/${s.slug}" data-open="${s.slug}"><span>${s.name}</span></a>
             <button type="button" class="btn btn--gold btn--sm" data-add="${s.id}">+ Add</button>`,
         });
@@ -485,7 +485,7 @@ export function initPaaji() {
       if (sh) say({ text: sh.text_roman.replace(/\n/g, ', '), display: sh.text_hi, shayari: true, mood: 'celebrate',
         extra: html`<p class="bubble__en muted">${sh.text_en}</p>` });
     } catch { /* ignore */ }
-    if (e.detail?.next) say({ text: `Agli vaari ${e.detail.next} zaroor try karna ji!`, mood: 'point' });
+    if (e.detail?.next) say({ text: `Agli baar ${e.detail.next} zaroor try kijiye ji!`, mood: 'point' });
   });
   document.addEventListener('ss:route', (e) => {
     if (e.detail.name !== 'home') hideBubbleSoon();

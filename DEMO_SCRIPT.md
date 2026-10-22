@@ -1,4 +1,4 @@
-# 🎬 Swaad Sujhaav — 3-minute demo
+# 🎬 Mithai Mitra — 3-minute demo
 
 Start the backend (`backend/.venv/Scripts/python backend/app.py`) and open http://localhost:8130.
 Sound on. Demo accounts: `…demo@swaadsujhav.test` / `SwaadDemo#2026`.

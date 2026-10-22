@@ -5,7 +5,7 @@
 import { supabase } from './supabase.js';
 
 export const CONFIG = {
-  shop: { name: 'Swaad Sujhaav', city: 'Muzaffarnagar', lat: 29.4727, lon: 77.7085, timezone: 'Asia/Kolkata', open: '09:00', close: '22:00' },
+  shop: { name: 'Mithai Mitra', city: 'Muzaffarnagar', lat: 29.4727, lon: 77.7085, timezone: 'Asia/Kolkata', open: '09:00', close: '22:00' },
   deals: { window_minutes: 90, preview_minutes: 30, steps: [10, 20, 30], max_percent: 30, min_stock_kg: 1, max_shelf_days: 2 },
   scratch: { start: '2026-10-10', end: '2026-11-20', daily_budget: 3000, coupon_days: 30 },
   freshness: { fresh_hours: 24 },

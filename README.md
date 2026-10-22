@@ -1,4 +1,4 @@
-# 🪔 Swaad Sujhaav — *Har mann ki mithai, ek sujhaav door*
+# 🪔 Mithai Mitra — *Har mann ki mithai, ek sujhaav door*
 
 A festive mithai shop for **Muzaffarnagar** with a talking Punjabi halwai mascot, **Paaji**,
 a free local machine-learning recommendation engine, and a shop designed around one idea:
@@ -220,5 +220,5 @@ pick.
 
 ## 📜 Credits
 - Sweet photos: Wikimedia Commons contributors (licence + author shown on each sweet's page).
-- Paaji, all artwork, dialogue and shayari: original, written for Swaad Sujhaav.
+- Paaji, all artwork, dialogue and shayari: original, written for Mithai Mitra.
 - Voice: ElevenLabs (optional) / Web Speech API. Embeddings: `all-MiniLM-L6-v2`.

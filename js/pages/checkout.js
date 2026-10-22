@@ -12,7 +12,7 @@ import { GIFT_BOX_RULE } from '../cartDrawer.js';
 import { mixSave, discountFor, getRules, qualifiesForSample } from '../deals.js';
 import { priceCart, getCoupon, setCoupon, myCoupons, couponUsable } from '../pricing.js';
 
-const SHOP = { name: 'Swaad Sujhaav', address: 'Main Bazaar, Muzaffarnagar, Uttar Pradesh 251001', hours: '9am – 10pm' };
+const SHOP = { name: 'Mithai Mitra', address: 'Main Bazaar, Muzaffarnagar, Uttar Pradesh 251001', hours: '9am – 10pm' };
 const DELIVERY_SLOTS = ['10am–12pm', '12pm–3pm', '3pm–6pm', '6pm–9pm'];
 const PICKUP_SLOTS = ['10am–1pm', '1pm–5pm', '5pm–9pm'];
 
@@ -319,7 +319,7 @@ export async function renderCheckout(view, params) {
         await refreshPrice();
         st.priceNote = `⏰ Prices just changed (a last-hour deal ended). New total: ${rupees(st.price?.total)}. Tap Place Order again to confirm.`;
         draw(); refreshPrice();
-        document.dispatchEvent(new CustomEvent('ss:say', { detail: { text: 'Ji, deal da time khatam ho gaya — naya total dekh ke confirm karo.', mood: 'think' } }));
+        document.dispatchEvent(new CustomEvent('ss:say', { detail: { text: 'Ji, deal ka samay khatam ho gaya — naya total dekh ke confirm kijiye.', mood: 'think' } }));
         return;
       }
       fail(/stock|limited/i.test(msg) ? `${msg}. Please reduce the quantity in your cart.` : msg || 'Could not place the order. Please try again.');

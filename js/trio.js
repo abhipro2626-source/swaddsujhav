@@ -31,7 +31,7 @@ function ensureBar() {
         if (s && v && add(s, v, 1, { silent: n > 0, from: all })) n++;
       }
       if (n) {
-        document.dispatchEvent(new CustomEvent('ss:say', { detail: { text: 'Balle balle! Hun thaali puri ho gayi ji!', mood: 'celebrate', group: 'add' } }));
+        document.dispatchEvent(new CustomEvent('ss:say', { detail: { text: 'Waah! Ab thaali poori ho gayi ji!', mood: 'celebrate', group: 'add' } }));
       }
       hide();
     }

@@ -47,7 +47,7 @@ export async function renderOrder(view, id, params) {
           <div><dt>${order.fulfilment === 'delivery' ? 'Delivery to' : 'Pickup at'}</dt>
             <dd>${order.fulfilment === 'delivery' && order.address
               ? `${order.address.name}, ${order.address.line1}${order.address.line2 ? `, ${order.address.line2}` : ''}, ${order.address.city} ${order.address.pincode || ''}`
-              : 'Swaad Sujhaav, Main Bazaar, Muzaffarnagar'}</dd></div>
+              : 'Mithai Mitra, Main Bazaar, Muzaffarnagar'}</dd></div>
           <div><dt>Time</dt><dd>${order.delivery_slot || '—'}</dd></div>
           <div><dt>Payment</dt><dd>${order.payment_method === 'cod' ? '💵 Cash on Delivery' : '🏪 Pay at Shop'}</dd></div>
           ${order.gift_message ? html`<div><dt>Gift card</dt><dd class="gift-msg">“${order.gift_message}”</dd></div>` : ''}
@@ -100,7 +100,7 @@ export async function renderOrder(view, id, params) {
       const slot = view.querySelector('#tracker-slot');
       if (slot) slot.innerHTML = tracker(payload.new.status, payload.new.fulfilment);
       document.dispatchEvent(new CustomEvent('ss:say', { detail: {
-        text: { packing: 'Tuhadi mithai pack ho rahi hai ji!', out_for_delivery: 'Mithai raste vich hai ji, bas pahunchne wali!', delivered: 'Mithai pahunch gayi! Mooh mitha karo ji!' }[payload.new.status] || 'Order update aaya hai ji!',
+        text: { packing: 'Aapki mithai pack ho rahi hai ji!', out_for_delivery: 'Mithai raaste mein hai ji, bas pahunchne wali hai!', delivered: 'Mithai pahunch gayi! Mooh mitha karo ji!' }[payload.new.status] || 'Order update aaya hai ji!',
         mood: payload.new.status === 'delivered' ? 'celebrate' : 'point' } }));
     })
     .subscribe();
